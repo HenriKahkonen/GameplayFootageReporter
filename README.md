@@ -12,18 +12,14 @@ Script currently identifies clip lengths and such from .mp4 files, file size tot
 
 Script requires Python to run (duh). Also needed dependency is opencv-python, which can be installed with command 
 
->pip install opencv-python
+> pip install opencv-python
 
 Edit the Gamefootagelister.py file to specify the path to your gameplay footage directory at row 6. If desired, you can test the script with a smaller dataset by placing files in the TestData subdirectory and setting the "UseTestFolder" value to True.
 
 For best results, in your gameplay footage directory, include the game's release date in brackets in the game's folder name, for example:
 
-./Gamefootage/Cyberpunk 2077 (2020)/
-
-./Gamefootage/Witcher 3 (2015)/
-
-./Gamefootage/Heroes of Might and Magic III (1999)
-
-./Gamefootage/The Sims 2 (2004)
-
-./Gamefootage/Crash Bandicoot (1996)
+> ./Gamefootage/Cyberpunk 2077 (2020)/footage...
+> ./Gamefootage/Witcher 3 (2015)/footage...
+> ./Gamefootage/Heroes of Might and Magic III (1999)/footage...
+> ./Gamefootage/The Sims 2 (2004)/footage...
+> ./Gamefootage/Crash Bandicoot (1996)/footage...
