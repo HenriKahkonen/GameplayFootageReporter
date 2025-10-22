@@ -5,10 +5,10 @@ A tool for video editors and content creators.
 Do you have a lot of gameplay footage lying around? This script can be used to gather data about large quantities of gameplay footage in .mp4 format to help identify which clips can be cut down in the interest of saving space on your drive.
 
 Script scans its target directory recursively and generates a report in **csv** as well as **table in html page format** that states e.g. 
-*Total size of files per subfolder
-*Total length of .mp4 clips in minutes in per subfolder
-*Average length of a clip in per subfolder
-*What file extensions are present per subfolder
+* Total size of files per subfolder
+* Total length of .mp4 clips in minutes in per subfolder
+* Average length of a clip in per subfolder
+* What file extensions are present per subfolder
 
 Script currently identifies clip lengths and such from .mp4 files, file size total cumulates from any files within a subfolder.
 
