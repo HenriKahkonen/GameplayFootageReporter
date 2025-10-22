@@ -19,7 +19,11 @@ Edit the Gamefootagelister.py file to specify the path to your gameplay footage 
 For best results, in your gameplay footage directory, include the game's release date in brackets in the game's folder name, for example:
 
 ./Gamefootage/Cyberpunk 2077 (2020)/
+
 ./Gamefootage/Witcher 3 (2015)/
+
 ./Gamefootage/Heroes of Might and Magic III (1999)
+
 ./Gamefootage/The Sims 2 (2004)
+
 ./Gamefootage/Crash Bandicoot (1996)
