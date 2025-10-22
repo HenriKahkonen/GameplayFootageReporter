@@ -4,7 +4,11 @@ A tool for video editors and content creators.
 
 Do you have a lot of gameplay footage lying around? This script can be used to gather data about large quantities of gameplay footage in .mp4 format to help identify which clips can be cut down in the interest of saving space on your drive.
 
-Script generates a report that states e.g. the total size of files in any folder in a directory as well as how long each video clip is on average, how much video material in minutes exists of any said game and what file extensions are present on the folder's files.
+Script scans its target directory recursively and generates a report in **csv** as well as **table in html page format** that states e.g. 
+*Total size of files per subfolder
+*Total length of .mp4 clips in minutes in per subfolder
+*Average length of a clip in per subfolder
+*What file extensions are present per subfolder
 
 Script currently identifies clip lengths and such from .mp4 files, file size total cumulates from any files within a subfolder.
 
@@ -23,3 +27,5 @@ For best results, in your gameplay footage directory, include the game's release
 > ./Gamefootage/Heroes of Might and Magic III (1999)/footage...  
 > ./Gamefootage/The Sims 2 (2004)/footage...  
 > ./Gamefootage/Crash Bandicoot (1996)/footage...
+
+After specifying your gameplay directory, run the script.
