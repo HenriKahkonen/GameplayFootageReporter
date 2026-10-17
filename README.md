@@ -14,9 +14,16 @@ Script scans its target directory recursively and generates a report as a **.csv
 
 ## How to use
 
-Script requires Python to run (duh). Also needed dependency is opencv-python, which can be installed with command 
+Script requires Python to run (duh). Also needed dependency is opencv-python. 
 
-> pip install opencv-python
+Those can be installed inside a virtual environment which keeps the machine outside of this program unaffected. This can be achieved with commands 
+
+```
+# linux with fish console
+python -m venv venv
+source venv/bin/activate.fish
+pip install -r requirements.txt
+```
 
 Edit the Gamefootagelister.py file to specify the path to your gameplay footage directory at row 6. If desired, you can test the script with a smaller dataset by placing files in the TestData subdirectory and setting the "UseTestFolder" value to True.
 

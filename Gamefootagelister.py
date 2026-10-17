@@ -3,27 +3,28 @@ import cv2 # pip install opencv-python
 decimal.getcontext().prec = 3
 
 ## SPECIFY YOUR FOOTAGE FOLDER PATH AND OUTPUT PATHS
-Folder = r"I:\V\Pelifootage\\";
+Folder = r"/run/media/henkka/TOSHIBA EXT/V/Pelifootage";
 UseTestFolder = False
 if UseTestFolder:
-    Folder = r".\Data\TestData\\";
-
-try:
-    OutputCsv = open(r'.\Output\GameFootagesData.csv','w')
-except FileNotFoundError:
-    OutputCsv = open(r'.\Output\GameFootagesData.csv','x')
-try:
-    OutputLog = open(r'.\Output\GameFootagesLog.txt','w')
-except FileNotFoundError:
-    OutputLog = open(r'.\Output\GameFootagesLog.txt','x')
-try:
-    OutputHtml = open(r'.\Output\GameFootagesTable.html','w')
-except FileNotFoundError:
-    OutputHtml = open(r'.\Output\GameFootagesTable.html','x')
-
+    Folder = r"./Data/TestData/";
 LogOutput = True # set to false if you dont' want to write the print logs to file
 CSVSep = ";" # character to separate values in csv
 CSVFloatComma = True # if true floats are represented as 3,14 instead of 3.14
+
+try:
+    OutputCsv = open(r'./Output/GameFootagesData.csv','w')
+except FileNotFoundError:
+    OutputCsv = open(r'./Output/GameFootagesData.csv','x')
+try:
+    OutputLog = open(r'./Output/GameFootagesLog.txt','w')
+except FileNotFoundError:
+    OutputLog = open(r'./Output/GameFootagesLog.txt','x')
+try:
+    OutputHtml = open(r'./Output/GameFootagesTable.html','w')
+except FileNotFoundError:
+    OutputHtml = open(r'./Output/GameFootagesTable.html','x')
+
+
 
 def writeCsv(text):
     OutputCsv.write(text)
@@ -39,7 +40,7 @@ if CSVSep ==  "," and CSVFloatComma:
     raise Exception("CSV Float character cannot be comma ',' if CSV separator is set to ','")
 
  # Initialize the html and csv files
-with open(".\\Data\\HtmlTableBase.html") as base:
+with open("./Data/HtmlTableBase.html") as base:
     writeHtml(base.read())
 writeCsv("Game title"+CSVSep+"Release year"+CSVSep+"Total file size in GB"+CSVSep+"Total video length"+CSVSep+"Total video files"+CSVSep+"Video length avg"+CSVSep+"File extensions\n")
 
@@ -60,10 +61,10 @@ for directory in os.listdir(Folder): # Directory should in most cases correspond
         gamename = directory
         gameyear = ""
 
-    for path, subdirs, files in os.walk(Folder+"\\"+directory):
+    for path, subdirs, files in os.walk(Folder+"/"+directory):
         for filename in files:
 
-            totalfilesize += decimal.Decimal(os.path.getsize(path+"\\"+filename)/1073741824) # Filesize in gigabytes
+            totalfilesize += decimal.Decimal(os.path.getsize(path+"/"+filename)/1073741824) # Filesize in gigabytes
 
             extension = str(os.path.splitext(filename)[1]) 
             if extension not in fileExtensions:
@@ -92,7 +93,7 @@ for directory in os.listdir(Folder): # Directory should in most cases correspond
     for x in fileExtensions:
         extensionsList = extensionsList+x+" "
 
-    writeCsv("\""+gamename+"\""+CSVSep+gameyear+CSVSep+totalfilesize+CSVSep+totalvideolength+CSVSep+totalvideofiles+CSVSep+videolengthavg+CSVSep+extensionsList+"\n")
+    writeCsv("/"+gamename+"/"+CSVSep+gameyear+CSVSep+totalfilesize+CSVSep+totalvideolength+CSVSep+totalvideofiles+CSVSep+videolengthavg+CSVSep+extensionsList+"\n")
     writeHtml("<tr><td>"+gamename+"</td><td>"+gameyear+"</td><td>"+totalfilesize+"</td><td>"+totalvideolength+"</td><td>"+totalvideofiles+"</td><td>"+videolengthavg+"</td><td>"+extensionsList+"</td></tr>\n")  
     
     writeLog(gamename+" ("+gameyear+"): "+totalfilesize+"GB and "+totalvideolength+"min in "+totalvideofiles+" file(s) ("+extensionsList+"), avg video length of "+videolengthavg+"sec.")
@@ -105,5 +106,5 @@ OpSeconds = TotalSeconds % 60
 
 writeLog("Footage listing complete in "+str(OpMinutes)+" min, "+str(OpSeconds)+" seconds.")
 
-with open(".\\Data\\HtmlTableSortScript.html") as script:
+with open("./Data/HtmlTableSortScript.html") as script:
     writeHtml(script.read())
