@@ -1,9 +1,54 @@
-import os, decimal, datetime, math # native functions in python
+import os, decimal, datetime, math, sys, argparse # native functions in python
 import cv2 # pip install opencv-python
 decimal.getcontext().prec = 3
+import settings
+from utils.errors import (EnvReadError,InvalidPathError)
+from utils.scanFiles import (GetFootageFolders)
+from utils.validateFiles import (ValidateFootagePath, ValidateObsidianPath, ValidateOutputPath)
+from utils.testHelpers import UnpackTests
 
-## SPECIFY YOUR FOOTAGE FOLDER PATH AND OUTPUT PATHS
-Folder = r"/run/media/henkka/TOSHIBA EXT/V/Pelifootage";
+def GameplayFootageReportGenerator(argv: list[str]) -> int:
+
+    # Parse arguments of script
+
+    parser = argparse.ArgumentParser(description="Gameplay footage report generator")
+    parser.add_argument("--initialize-obsidian", action="store_true", help="Initialize the Obsidian database to supplement the video footage folder")
+    parser.add_argument("--unpack-tests", action="store_true", help="Unpack the test files for the program.")
+    parser.add_argument("--create-env-files", action="store_true", help="Add the template .env files.")
+    parser.add_argument("--footage-path", type=str, metavar="Footage_path", help="The path where the footage is stored")
+    parser.add_argument("--obsidian-path", type=str, metavar="Obsidian_path", help="The path where the complementary obsidian database folder is located")
+    parser.add_argument("--output-to", type=str, metavar="Output_path", help="The custom path to output the analysis report to")
+
+    args = parser.parse_args(argv[1:])
+
+    if args.unpack_tests:
+        UnpackTests()
+        return 0
+
+
+    # Validate paths
+
+    Footage_path_candidate = args.footage_path or settings.GAMEPLAY_FOOTAGE_PATH
+    Obsidian_path_candidate = args.obsidian_path or settings.OBSIDIAN_DB_PATH
+    Output_path_candidate = args.output_to or settings.CUSTOM_OUTPUT_PATH
+
+    FOOTAGE_PATH = ValidateFootagePath(footage_path=Footage_path_candidate)
+    OBSIDIAN_PATH = ValidateObsidianPath(obsidian_path=Obsidian_path_candidate, scan_obsidian=settings.SCAN_OBSIDIAN_DB)
+    OUTPUT_PATH = ValidateOutputPath(output_path=Output_path_candidate,use_custom_output_path=settings.OUTPUT_TO_CUSTOM_DIRECTORY)
+
+    GameFootageFolders = GetFootageFolders(FOOTAGE_PATH)
+
+    print(GameFootageFolders)
+    # TODO: go from there
+
+    return 1
+
+if __name__ == "__main__":
+    GameplayFootageReportGenerator(sys.argv)
+
+exit()
+
+#Folder = r"/run/media/henkka/TOSHIBA EXT/V/Pelifootage";
 UseTestFolder = False
 if UseTestFolder:
     Folder = r"./Data/TestData/";

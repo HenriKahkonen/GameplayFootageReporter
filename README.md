@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 Edit the Gamefootagelister.py file to specify the path to your gameplay footage directory at row 6. If desired, you can test the script with a smaller dataset by placing files in the TestData subdirectory and setting the "UseTestFolder" value to True.
 
-For best results, in your gameplay footage directory, include the game's release date in brackets in the game's folder name, for example:
+For best results, in your gameplay footage directory, include the game's release year in brackets in the game's folder name, for example:
 
 > /Gamefootage/Cyberpunk 2077 (2020)/footage...  
 > /Gamefootage/Witcher 3 (2015)/footage...  

@@ -1,4 +1,10 @@
 /Data/TestData/*
 /Output/*
 venv
-Test/Gameplay-footage
+/Test/Testdata/*
+!Test/Testdata/Testdata.zip
+
+
+.env
+*__pycache__
+.vscode
