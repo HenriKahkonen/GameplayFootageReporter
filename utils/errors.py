@@ -18,3 +18,10 @@ class InvalidArgumentError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
+class MalformedSettingsError(Exception):
+    """Exception raised when the settings.py file is malformed and expected values can't be read from it."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)

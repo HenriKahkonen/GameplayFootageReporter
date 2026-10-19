@@ -27,6 +27,16 @@ CSV_FLOATS_WITH_COMMA = True # if true floats are represented as 3,14 instead of
 # complex database engine running on the machine
 SQLITE_OUTPUT = True
 
+# In which formats are your video files? Ffmpeg will try to parse video types listed here.
+SUPPORTED_VIDEO_FILETYPES = [
+    ".mp4", ".mov", ".mkv", ".mpg", ".ts", ".ogg", ".avi"
+]
+
+# Which files are skipped
+IGNORED_FILETYPES = [
+    ".ignr"
+]
+
 # Naming conventions:
 # If you follow a naming convention like such:
 #
@@ -43,7 +53,6 @@ RELEASE_YEAR_IN_FOLDERNAME = True
 
 # What shorthands are used
 # Specify as "shorthand_as_in_the_folder_name" : "The full name of the platform"
-DEFAULT_PLATFORM = "PC" # If folder doesn't match any platform prefix
 GAME_PLATFORMS = {
     "00" : "Not a game",
     "Arcade" : "Pelihallipelit",
@@ -65,7 +74,6 @@ GAME_PLATFORMS = {
     "Sega Genesis" : "Sega Genesis",
     "Sega Saturn" : "Sega Saturn",
     "SNES" : "Super Nintendo Entertainment System",
-    "Web" : "Browser",
     "TIC-80" : "TIC-80",
     "XBOX" : "XBox",
     "Virtual Boy" : "Nintendo Virtual Boy",
@@ -85,15 +93,15 @@ SCAN_OBSIDIAN_DB = True
 # What headers to search for in Obsidian files and what are their datatypes?
 OBSIDIAN_HEADERS = {
     "year": int,
-    "Genret": [],
-    "tags" : [],
+    "Genret": [str],
+    "tags" : [str],
     "Playtime_hrs" : int,
     "Playtime_mins" : int,
     "Rating": float, # 0 - 5, 3,5 allowed
     "Play_Status" : str,
     "Pelisarja" : str,
-    "Kehittäjä(t)" : [],
-    "Julkaisija(t)" : [],
+    "Kehittäjä(t)" : [str],
+    "Julkaisija(t)" : [str],
 }
 
 # Load env variables and throw errors if appropriate

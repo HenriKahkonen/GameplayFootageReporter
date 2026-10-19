@@ -1,44 +1,73 @@
 import os, decimal, datetime, math, sys, argparse # native functions in python
 import cv2 # pip install opencv-python
 decimal.getcontext().prec = 3
-import settings
 from utils.errors import (EnvReadError,InvalidPathError)
-from utils.scanFiles import (GetFootageFolders)
+from utils.scanFiles import (GetFootageFolders, GetGameMetadata)
 from utils.validateFiles import (ValidateFootagePath, ValidateObsidianPath, ValidateOutputPath)
-from utils.testHelpers import UnpackTests
+from utils.testHelpers import UnpackTests, ValidateTestFiles, GenerateTestFileValidationBaseline, DeleteTestFiles
+from utils.settingsLoader import Settings
+from pathlib import Path
 
 def GameplayFootageReportGenerator(argv: list[str]) -> int:
 
     # Parse arguments of script
 
     parser = argparse.ArgumentParser(description="Gameplay footage report generator")
+    
     parser.add_argument("--initialize-obsidian", action="store_true", help="Initialize the Obsidian database to supplement the video footage folder")
-    parser.add_argument("--unpack-tests", action="store_true", help="Unpack the test files for the program.")
-    parser.add_argument("--create-env-files", action="store_true", help="Add the template .env files.")
+
     parser.add_argument("--footage-path", type=str, metavar="Footage_path", help="The path where the footage is stored")
     parser.add_argument("--obsidian-path", type=str, metavar="Obsidian_path", help="The path where the complementary obsidian database folder is located")
     parser.add_argument("--output-to", type=str, metavar="Output_path", help="The custom path to output the analysis report to")
+    parser.add_argument("--calculate-test-file-hash-baseline", action="store_true", help="Create a JSON file of all of the test files' sha256 hashes so that their integrity can be verified.")
+    #parser.add_argument("--create-env-files", action="store_true", help="Add the template .env files.")
+    parser.add_argument("--unpack-tests", action="store_true", help="Unpack the test files for the program.")
+    parser.add_argument("--remove-test-files", action="store_true", help="Free disk space by removing the test files.")
 
     args = parser.parse_args(argv[1:])
 
+    try:
+        if args.calculate_test_file_hash_baseline:
+            GenerateTestFileValidationBaseline()
+            return 0
+    except AttributeError:
+        pass # allow for commenting out temporarily used funcs
+
     if args.unpack_tests:
+        print("Unpacking the test files from the .zip archive...")
         UnpackTests()
+        print("Validating test files...")
+        ValidateTestFiles()
+        print("Test data succesfully unpacked.")
         return 0
 
+    if args.remove_test_files:
+        print("Removing test files from ./Test/Testdata...")
+        DeleteTestFiles()
+        print("Test data cleared.")
+        return 0
 
-    # Validate paths
+    # Validate paths and arg
+
+    settings = Settings()
 
     Footage_path_candidate = args.footage_path or settings.GAMEPLAY_FOOTAGE_PATH
     Obsidian_path_candidate = args.obsidian_path or settings.OBSIDIAN_DB_PATH
     Output_path_candidate = args.output_to or settings.CUSTOM_OUTPUT_PATH
+    Inititalize_Obsidian = args.initialize_obsidian
 
     FOOTAGE_PATH = ValidateFootagePath(footage_path=Footage_path_candidate)
-    OBSIDIAN_PATH = ValidateObsidianPath(obsidian_path=Obsidian_path_candidate, scan_obsidian=settings.SCAN_OBSIDIAN_DB)
+    OBSIDIAN_PATH = ValidateObsidianPath(obsidian_path=Obsidian_path_candidate, scan_obsidian=settings.SCAN_OBSIDIAN_DB, initialize_obsidian=Inititalize_Obsidian)
     OUTPUT_PATH = ValidateOutputPath(output_path=Output_path_candidate,use_custom_output_path=settings.OUTPUT_TO_CUSTOM_DIRECTORY)
 
-    GameFootageFolders = GetFootageFolders(FOOTAGE_PATH)
+    Games_raw = GetFootageFolders(FOOTAGE_PATH)
 
-    print(GameFootageFolders)
+    for GameFolder in Games_raw:
+        footage_path = Path(FOOTAGE_PATH + GameFolder)
+        game_metadata = GetGameMetadata(footage_path, settings)
+        print(game_metadata)
+        exit()
+
     # TODO: go from there
 
     return 1
