@@ -8,5 +8,5 @@ def testdata():
         ValidateTestFiles()
         yield
     finally:
-        DeleteTestFiles()
-        
+        #DeleteTestFiles()
+        pass

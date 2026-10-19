@@ -24,8 +24,9 @@ class Settings:
     
             self.SQLITE_OUTPUT: bool = settings.SQLITE_OUTPUT
     
-            # --- Video files ---
+            # --- Video and ignored files ---
             self.SUPPORTED_VIDEO_FILETYPES: list[str] = deepcopy(settings.SUPPORTED_VIDEO_FILETYPES)
+            self.IGNORED_FILETYPES: list[str] = deepcopy(settings.IGNORED_FILETYPES)
     
             # --- Naming conventions ---
             self.PLATFORM_IN_FOLDERNAME: bool = settings.PLATFORM_IN_FOLDERNAME
@@ -39,6 +40,10 @@ class Settings:
             # --- Obsidian ---
             self.SCAN_OBSIDIAN_DB: bool = settings.SCAN_OBSIDIAN_DB
             self.OBSIDIAN_HEADERS: dict[str, Any] = deepcopy(settings.OBSIDIAN_HEADERS)
+
+            self.OBSIDIAN_RATING_MIN : int = settings.OBSIDIAN_RATING_MIN
+            self.OBSIDIAN_RATING_MAX : int = settings.OBSIDIAN_RATING_MAX
+            self.OBSIDIAN_RATING_USE_STAR_SYSTEM : bool = settings.OBSIDIAN_RATING_USE_STAR_SYSTEM
     
             # --- Loaded from .env (allowed to be None) ---
             self.GAMEPLAY_FOOTAGE_PATH: Optional[str] = settings.GAMEPLAY_FOOTAGE_PATH

@@ -95,14 +95,19 @@ OBSIDIAN_HEADERS = {
     "year": int,
     "Genret": [str],
     "tags" : [str],
+    "Alusta" : [str],
     "Playtime_hrs" : int,
     "Playtime_mins" : int,
-    "Rating": float, # 0 - 5, 3,5 allowed
+    "Rating": float,
     "Play_Status" : str,
     "Pelisarja" : str,
     "Kehittäjä(t)" : [str],
     "Julkaisija(t)" : [str],
 }
+
+OBSIDIAN_RATING_MIN = 0
+OBSIDIAN_RATING_MAX = 5
+OBSIDIAN_RATING_USE_STAR_SYSTEM = True # Makes non-half step ratings invalid, 4,7 not allowed
 
 # Load env variables and throw errors if appropriate
 env_vars = dotenv.load_dotenv()

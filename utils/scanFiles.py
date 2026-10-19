@@ -10,24 +10,41 @@ def GetFootageFolders(directory:str) -> list[str]:
 #def GetFootagePath(folder:str) -> list[Path]:
 
 def parseReleaseYearFromFolderName(folderName:str | Path, settings: Settings) -> int | None:
-    """Takes the folder name and tries to parse a release year from it. If """
+    """Takes the folder name and tries to parse a release year from it."""
 
     gamename = str(folderName)
     yearInFolderName = settings.RELEASE_YEAR_IN_FOLDERNAME
-    yearCandidate = None
 
     if yearInFolderName:
         match = re.search(r"\((\d{4})\)$", gamename.strip())
         if match:
             return int(match.group(1))
+        
     return None
+
+def parseObsidianNote(folderName:str | Path, settings:Settings, obsidian_path: str | Path) -> dict | None:
+    """Try to match the folder name to a matching Obsidian markdown note. If a match is found, return Obsidian's metadata defined in settings as a dictionary."""
+
+    if settings.SCAN_OBSIDIAN_DB == False:
+        return None
+
+
+    pass
+
+
 
 #def parseGameplatform
 
-def GetGameMetadata(footage_folder_path:Path, settings: Settings) -> dict:
+def GetGameMetadata(footage_folder_path:Path | str, obsidian_path: Path | str | None = None, settings: Settings | None = None) -> dict:
     """Get the game's name, release year and platform from the folder name and / or the obsidian database, if one is to be used as per the submitted Settings."""
 
-    releaseYear = parseReleaseYearFromFolderName(str(footage_folder_path))
+    if Settings == None:
+        raise ValueError("Game metadata parsing failed due to no settings being passed to the func.")
+
+    obsidianMetadata = parseObsidianNote(footage_folder_path,obsidian_path, settings)
+
+    #releaseYear = parseReleaseYearFromFolderName(str(footage_folder_path))
+
     return {
         "releaseYear" : releaseYear
     }
