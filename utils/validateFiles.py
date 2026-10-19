@@ -15,31 +15,39 @@ def ValidateFootagePath(footage_path: str | None) -> str:
 
         else:
             raise EnvReadError("Cannot read gameplay footage path from .env. Check that you have a .env file where your gameplay footage folder is properly configured.")
-    
+
+    if footage_path in FORBIDDEN_PATHS:
+        raise InvalidPathError(f"The footage path '{footage_path}' is not allowed.")   
+
     if not os.path.exists(footage_path):
         raise InvalidPathError(f"The path '{footage_path}' does not exist. Make sure the submitted path points to an existing footage folder.")
 
-
-    if footage_path in FORBIDDEN_PATHS:
-        raise InvalidPathError(f"The footage path '{footage_path}' is not allowed.")
-
     return footage_path
 
-def ValidateObsidianPath(obsidian_path: str | None, scan_obsidian: bool) -> {str | None, bool}:
+def ValidateObsidianPath(obsidian_path: str | None, scan_obsidian: bool, initialize_obsidian: bool) -> {str | None, bool}:
     """Checks the submitted obsidian path and raises appropriate errors if the Obsidian path is invalid but obsidian scannig is set to true."""
 
-    if not scan_obsidian:
+
+    if not scan_obsidian or not initialize_obsidian:
         return None
     
     if obsidian_path == None:
         if not os.path.exists(".env"): 
             raise EnvReadError("Can't read Obsidian Database folder from .env or from passed arguments, but SCAN_OBSIDIAN_DB has been set to True in settings.py. Check that you have an .env file where your Obsidian folder is properly configured.")
         
-    if not os.path.exists(obsidian_path):
-        raise FileNotFoundError(f"The specified Obsidian database folder path {obsidian_path} does not exist, but SCAN_OBSIDIAN_DB has been set to True in settings.py. Either set SCAN_OBSIDIAN_DB to False or check that your Obsidian folder is properly configured.")
-    
     if obsidian_path in FORBIDDEN_PATHS:
         raise InvalidPathError(f"The obsidian database path '{obsidian_path}' is not allowed.")
+    
+    if not os.path.exists(obsidian_path):
+
+        if initialize_obsidian:
+            try: 
+                os.mkdir(obsidian_path)
+            except PermissionError:
+                print(f"Cannot initialize Obsidian game notes database at {obsidian_path} due to insufficient permissions. Check your Obsidian database directory or run the program with elevated permissions.")
+                raise
+        
+        raise FileNotFoundError(f"The specified Obsidian database folder path {obsidian_path} does not exist, but SCAN_OBSIDIAN_DB has been set to True in settings.py. Either set SCAN_OBSIDIAN_DB to False or check that your Obsidian folder is properly configured.")
     
     return obsidian_path
 
