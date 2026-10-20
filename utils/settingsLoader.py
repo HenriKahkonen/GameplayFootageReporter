@@ -2,6 +2,8 @@ from utils.errors import MalformedSettingsError
 from copy import deepcopy
 from typing import Any, Optional
 import settings
+import dotenv
+from pathlib import Path
 
 class Settings:
     def __init__(self):
@@ -35,20 +37,27 @@ class Settings:
             self.RELEASE_YEAR_IN_FOLDERNAME: bool = settings.RELEASE_YEAR_IN_FOLDERNAME
     
             self.GAME_PLATFORMS: dict[str, str] = deepcopy(settings.GAME_PLATFORMS)
-            self.FOOTAGE_CATEGORIES: dict[str, tuple[str, str]] = deepcopy(settings.FOOTAGE_CATEGORIES)
+            self.FOLDERNAME_CUSTOM_CATEGORIES = settings.FOLDERNAME_CUSTOM_CATEGORIES
+            self.FOOTAGE_FOLDERNAME_CATEGORIES: dict[str, tuple[str, str]] = deepcopy(settings.FOOTAGE_FOLDERNAME_CATEGORIES)
     
             # --- Obsidian ---
             self.SCAN_OBSIDIAN_DB: bool = settings.SCAN_OBSIDIAN_DB
             self.OBSIDIAN_HEADERS: dict[str, Any] = deepcopy(settings.OBSIDIAN_HEADERS)
+            self.OBSIDIAN_METADATA_MAP: dict[str,str] = deepcopy(settings.OBSIDIAN_METADATA_MAPPING)
 
             self.OBSIDIAN_RATING_MIN : int = settings.OBSIDIAN_RATING_MIN
             self.OBSIDIAN_RATING_MAX : int = settings.OBSIDIAN_RATING_MAX
             self.OBSIDIAN_RATING_USE_STAR_SYSTEM : bool = settings.OBSIDIAN_RATING_USE_STAR_SYSTEM
-    
+
+            dotenv.load_dotenv()
+
             # --- Loaded from .env (allowed to be None) ---
             self.GAMEPLAY_FOOTAGE_PATH: Optional[str] = settings.GAMEPLAY_FOOTAGE_PATH
             self.OBSIDIAN_DB_PATH: Optional[str] = settings.OBSIDIAN_DB_PATH
             self.CUSTOM_OUTPUT_PATH: Optional[str] = settings.CUSTOM_OUTPUT_PATH
+
+            self.SCRIPT_DIR = Path(__file__).resolve().parent
+            self.OUTPUT_PATH = self.CUSTOM_OUTPUT_PATH if self.CUSTOM_OUTPUT_PATH else self.SCRIPT_DIR / "Output" ## python script root / Output
     
             self.validate()
         except AttributeError as e:

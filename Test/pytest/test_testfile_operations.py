@@ -1,6 +1,5 @@
 import utils.testHelpers as testHelpers
 
-from utils.scanFiles import (GetFootageFolders)
 import utils.testHelpers as testHelpers
 import pytest
 

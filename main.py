@@ -2,11 +2,12 @@ import os, decimal, datetime, math, sys, argparse # native functions in python
 import cv2 # pip install opencv-python
 decimal.getcontext().prec = 3
 from utils.errors import (EnvReadError,InvalidPathError)
-from utils.scanFiles import (GetFootageFolders, GetGameMetadata)
+from utils.scanFiles import (getFootageFolders, getGameMetadata)
 from utils.validateFiles import (ValidateFootagePath, ValidateObsidianPath, ValidateOutputPath)
 from utils.testHelpers import UnpackTests, ValidateTestFiles, GenerateTestFileValidationBaseline, DeleteTestFiles
 from utils.settingsLoader import Settings
 from pathlib import Path
+import time
 
 def GameplayFootageReportGenerator(argv: list[str]) -> int:
 
@@ -25,6 +26,8 @@ def GameplayFootageReportGenerator(argv: list[str]) -> int:
     parser.add_argument("--remove-test-files", action="store_true", help="Free disk space by removing the test files.")
 
     args = parser.parse_args(argv[1:])
+
+    print("\n"+"*"*56+"\n*** Gameplay footage and game notes report generator ***\n"+"*"*56+"\n")
 
     try:
         if args.calculate_test_file_hash_baseline:
@@ -47,26 +50,62 @@ def GameplayFootageReportGenerator(argv: list[str]) -> int:
         print("Test data cleared.")
         return 0
 
-    # Validate paths and arg
+    # Validate paths and arguments
 
     settings = Settings()
+
+    # TODO: remove test paths
+    settings.GAMEPLAY_FOOTAGE_PATH = ("/mnt/data/repos/GameplayFootageReporter/Test/Testdata/Gameplay-Footage")
+    settings.OBSIDIAN_DB_PATH = ("/mnt/data/repos/GameplayFootageReporter/Test/Testdata/Obsidian-Notes")
+    settings.OUTPUT_TO_CUSTOM_DIRECTORY = False
 
     Footage_path_candidate = args.footage_path or settings.GAMEPLAY_FOOTAGE_PATH
     Obsidian_path_candidate = args.obsidian_path or settings.OBSIDIAN_DB_PATH
     Output_path_candidate = args.output_to or settings.CUSTOM_OUTPUT_PATH
-    Inititalize_Obsidian = args.initialize_obsidian
+    Initialize_Obsidian = args.initialize_obsidian
 
-    FOOTAGE_PATH = ValidateFootagePath(footage_path=Footage_path_candidate)
-    OBSIDIAN_PATH = ValidateObsidianPath(obsidian_path=Obsidian_path_candidate, scan_obsidian=settings.SCAN_OBSIDIAN_DB, initialize_obsidian=Inititalize_Obsidian)
-    OUTPUT_PATH = ValidateOutputPath(output_path=Output_path_candidate,use_custom_output_path=settings.OUTPUT_TO_CUSTOM_DIRECTORY)
+    settings.GAMEPLAY_FOOTAGE_PATH = ValidateFootagePath(
+        footage_path=Footage_path_candidate
+        )
+    settings.OBSIDIAN_DB_PATH = ValidateObsidianPath(
+        obsidian_path=Obsidian_path_candidate, 
+        scan_obsidian=settings.SCAN_OBSIDIAN_DB, 
+        initialize_obsidian=Initialize_Obsidian
+    )
 
-    Games_raw = GetFootageFolders(FOOTAGE_PATH)
+    if Initialize_Obsidian:
+        # TODO
+        print("WIP not implemented yet")
+        return 0
 
+    settings.OUTPUT_PATH = ValidateOutputPath(
+        output_path=Output_path_candidate,
+        use_custom_output_path=settings.OUTPUT_TO_CUSTOM_DIRECTORY, 
+        sysargv=argv
+    )
+
+    print("Generating report from gameplay footage and note directories...\n")
+    print(f"Reading gameplay footage from '{settings.GAMEPLAY_FOOTAGE_PATH}'")
+    if settings.SCAN_OBSIDIAN_DB:
+        print(f"Reading supplementary Obsidian note database from '{settings.OBSIDIAN_DB_PATH}'")
+    print(f"Writing analysis files to '{settings.OUTPUT_PATH}'.\n")
+
+    Games_raw = getFootageFolders(settings.GAMEPLAY_FOOTAGE_PATH)
+
+    if len(Games_raw) == 0:
+        print("There are no footage folders under your footage directory!")
+        return 1
+
+    print(f"Found {len(Games_raw)} game footage folders.\n")
+    
     for GameFolder in Games_raw:
-        footage_path = Path(FOOTAGE_PATH + GameFolder)
-        game_metadata = GetGameMetadata(footage_path, settings)
+
+        game_footage_path = Path(settings.GAMEPLAY_FOOTAGE_PATH / GameFolder)
+
+        game_metadata = getGameMetadata(game_footage_path, settings)
+
         print(game_metadata)
-        exit()
+        
 
     # TODO: go from there
 

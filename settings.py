@@ -12,7 +12,6 @@ from utils.errors import (
 # If False, outputs to an /Output directory under this program
 # If True, outputs to the directory specified in the .env file
 OUTPUT_TO_CUSTOM_DIRECTORY = False
-
 # Do you want a .txt log of the operation
 LOG_OUTPUT = True
 
@@ -47,7 +46,6 @@ IGNORED_FILETYPES = [
 # If the following are set to False, the same folder gets parsed to the database as
 # {Gamename: "NES - Battletoads (1991), Year: None, Platform: None"}
 PLATFORM_IN_FOLDERNAME = True
-DEFAULT_PLATFORM = "PC" # If folder doesn't match any platform prefix
 PLATFORM_PREFIX_SEPARATOR = " - "
 RELEASE_YEAR_IN_FOLDERNAME = True
 
@@ -68,34 +66,61 @@ GAME_PLATFORMS = {
     "N64" : "Nintendo 64",
     "NES" : "Nintendo Entertainment System",
     "NGC" : "Nintendo Gamecube",
+    "NS"  : "Nintendo Switch",
+    "PC"  : "PC",
     "PICO-8" : "Pico-8",
     "PS2" : "Sony Playstation 2",
+    "PS3" : "Sony Playstation 3",
+    "PS4" : "Sony Playstation 4",
+    "PS5" : "Sony Playstation 5",
     "PSX" : "Sony Playstation",
     "Sega Genesis" : "Sega Genesis",
     "Sega Saturn" : "Sega Saturn",
     "SNES" : "Super Nintendo Entertainment System",
     "TIC-80" : "TIC-80",
-    "XBOX" : "XBox",
+    "XBOX" : "Xbox",
+    "XBOX360" : "Xbox 360",
+    "XBOX-1" : "Xbox One",
+    "XBOX-SX" : "Xbox Series X",
     "Virtual Boy" : "Nintendo Virtual Boy",
-    "Web" : "Browser"
+    "Web" : "Browser",
 }
 
+DEFAULT_PLATFORM = "PC" # If folder doesn't match any platform prefix, it will be treated if it had this platform. If the default platform doesnt match any of the keys in the platform map, it will be treaded as a custom defined platform name.
+# DEFAULT_PLATFORM = "SNES" -> Games default platform will be "Super Nintendo Entertainment System"
+# DEFAULT_PLATFORM = "Tiger Handheld" -> Games default platform will be "Tiger Handheld"
+#
+
+
+FOLDERNAME_CUSTOM_CATEGORIES = True
 # Other custom categories for footage folders
-# Specify as a tuple what the cateory is and what the platform of that category is
-# This allows
-FOOTAGE_CATEGORIES = {
+# If you want to group the footage into other custom non-platform categories such as
+#
+# / Doom (2016)                             
+# / Doom Mods - Ancient Aliens (2016)       
+# / Doom Mods - Ghostbusters Doom (2002)    
+# / DOS - Jazz Jackrabbit (1994)            
+#
+# If so, specify as a tuple what the cateory is and what the gaming platform of that category is
+# Only one prefix will be scanned from the folder name and custom categories are checked before checking game platform. 
+# If a custom category is found in the folder name, a platform is not checked from the folder name, instead it is defined here.
+# As with the default platform, you may define either a shorthand that maps to a full name in GAME_PLATFORMS or a custom platform name.
+#
+FOOTAGE_FOLDERNAME_CATEGORIES = {
     "Doom Mods" : ("Doom Mod","PC"),
     "Suomipelit": ("Suomipelit","PC")
 }
 
 # Do you want to cross-reference the scanned folders to an Obsidian database to try to find additional data on the games?
 SCAN_OBSIDIAN_DB = True
-# What headers to search for in Obsidian files and what are their datatypes?
+# What headers to search for in Obsidian files' frontmatter and what are their datatypes?
+# Note that the values must match to their counterparts in OBSIDIAN_METADATA_MAPPING
 OBSIDIAN_HEADERS = {
     "year": int,
     "Genret": [str],
     "tags" : [str],
-    "Alusta" : [str],
+    "Alusta(t)" : [str],
+    "Kategoria(t)" : [str],
     "Playtime_hrs" : int,
     "Playtime_mins" : int,
     "Rating": float,
@@ -103,6 +128,20 @@ OBSIDIAN_HEADERS = {
     "Pelisarja" : str,
     "Kehittäjä(t)" : [str],
     "Julkaisija(t)" : [str],
+}
+
+# These are the metadata values the program tries to assign when scanning the footage and notes folders. Changing the left hand values will break the program, but you can change the right hand values to match your Obsidian note headers.
+OBSIDIAN_METADATA_MAPPING = {
+    "year": "year",
+    "platforms" : "Alusta(t)",
+    "categories" : "Kategoria(t)",
+    "genres" : "Genret",
+    "rating" : "Rating",
+    "playtime_hrs" : "Playtime_hrs",
+    "playtime_mins" : "Playtime_mins",
+    "game_series" : "Pelisarja",
+    "developers" : "Kehittäjä(t)",
+    "publishers" : "Julkaisija(t)",
 }
 
 OBSIDIAN_RATING_MIN = 0

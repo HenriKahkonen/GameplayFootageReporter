@@ -25,3 +25,31 @@ class MalformedSettingsError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
+class CannotParseRatingError(Exception):
+    """Exception thrown when the user rating can't be parsed."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+class TooHighRatingError(Exception):
+    """Exception thrown when the user submitted rating is over the defined max limit."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+class TooLowRatingError(Exception):
+    """Exception thrown when the user submitted rating is over the defined max limit."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+class InvalidStarRatingError(Exception):
+    """Exception thrown when the user submitted rating is over the defined max limit."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)

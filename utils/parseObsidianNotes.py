@@ -4,6 +4,7 @@ import unicodedata
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+import os
 
 import yaml
 
@@ -110,6 +111,37 @@ def readObsidianFrontmatter(note_path: Path) -> dict[str, Any] | None:
         return None
     return data if isinstance(data, dict) else None
 
+def getFileSize(filePath: str | Path, rounded: bool = False, decimals: int = 2) -> float:
+    """Takes a file path and returns the file's size in kiloBytes. Only returns file size of files, not folders."""
+    path = Path(filePath)
+    if not path.exists():
+        raise FileNotFoundError(f"File '{path}' does not exist.")
+
+    if not path.is_file():
+        raise ValueError(f"The path '{path}' refers to a directory, not a file.")
+    
+    size_bytes = path.stat().st_size
+
+    if rounded:
+        return round(size_bytes / 1024, decimals)
+
+    return size_bytes / 1024
+
+def getObsidianNoteFileSize(filepath: str | Path) -> float | None:
+
+    path = Path(filepath)
+    path_extension = os.path.splitext(path)[-1].lower()
+    
+    if path_extension != ".md":
+        return None
+
+    try:
+        size_in_kb = getFileSize(filepath)
+        return size_in_kb
+    except (ValueError, FileNotFoundError):
+        pass
+
+    return None
 
 def parseObsidianNote(
     folderName: str | Path,
@@ -126,14 +158,14 @@ def parseObsidianNote(
     Returns:
         None if scanning is disabled, no note matches, or the note has no valid
         frontmatter. Otherwise a dict with one key per entry in
-        settings.OBSIDIAN_HEADERS. Missing or empty values become None
+        settings.OBSIDIAN_HEADERS plus the file size under md_file_size. Missing or empty values become None
         (or [] for list-type headers).
 
     Raises:
         FileNotFoundError: if obsidian_path doesn't exist.
     """
     if not settings.SCAN_OBSIDIAN_DB:
-        return None
+        return {}
 
     obsidian_path = Path(obsidian_path)
     if not obsidian_path.is_dir():
@@ -148,7 +180,13 @@ def parseObsidianNote(
     if frontmatter is None:
         return None
 
-    return {
+    # Get md file size or None if invalid or unavailable
+    md_file_size = getObsidianNoteFileSize(note_path)
+
+    result = {
         header: _coerce(frontmatter.get(header), spec)
         for header, spec in settings.OBSIDIAN_HEADERS.items()
     }
+    result["md_file_size"] = md_file_size
+
+    return result

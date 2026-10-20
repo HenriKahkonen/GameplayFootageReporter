@@ -1,4 +1,4 @@
-from utils.parseObsidianNotes import (stripObsidianWikilinks, buildObsidianNoteIndex, normalizeName, readObsidianFrontmatter, getObsidianFrontmatter, parseObsidianNote )
+from utils.parseObsidianNotes import (stripObsidianWikilinks, buildObsidianNoteIndex, normalizeName, readObsidianFrontmatter, getObsidianFrontmatter, parseObsidianNote, getFileSize, getObsidianNoteFileSize )
 import utils.testHelpers as testHelpers
 import os
 import pytest
@@ -57,9 +57,9 @@ Genret:
   - Räiskintä
 tags:
   - Peli
-Alusta: [[Sega Genesis]]
-Playtime_hrs:
-Playtime_mins:
+Alusta(t): [[Sega Genesis]]
+Playtime_hrs: 6
+Playtime_mins: 48
 Pelisarja:
 Kehittäjä(t):
 Julkaisija(t):
@@ -75,12 +75,12 @@ def test_obsidian_frontmatter_read():
     assert note1data["year"] == 1822
     assert note1data["Genret"] == ["Räiskintä"]
     assert note1data["tags"] == ["Peli"]
-    assert note1data["Playtime_hrs"] == None
+    assert note1data["Playtime_hrs"] == 6
     assert note1data["Play_Status"] == "[[Status - Playing]]"
 
     assert note2data["Kehittäjä(t)"] == ["[[id Software]]"]
     assert note2data["Genret"] == ["[[Räiskintä (FPS) -pelit]]","[[Lisäosat]]"]
-    assert note2data["Alusta"] == ["[[PC]]","Useilla alustoilla"]
+    assert note2data["Alusta(t)"] == ["[[PC]]","Useilla alustoilla"]
 
 def test_obsidian_frontmatter_datatypes():
         
@@ -88,7 +88,7 @@ def test_obsidian_frontmatter_datatypes():
     note2data = readObsidianFrontmatter(Path(TEST_NOTES_DIRECTORY / "NES - Game 5 (1982).md"))
 
     assert isinstance(note2data["year"], int)
-    assert isinstance(note1data["Alusta"], list)
+    assert isinstance(note1data["Alusta(t)"], list)
     assert isinstance(note1data["Play_Status"], str)
 
 def test_parse_obsidian_note():
@@ -106,5 +106,23 @@ def test_parse_obsidian_note():
     assert note1["Rating"] == 6
 
 
+def test_filesize_check():
+
+    note1size = getFileSize(Path(TEST_NOTES_DIRECTORY / "Game 1.md"))
+    video1size = getFileSize(Path(TEST_FOOTAGE_DIRECTORY / "Game 3 (1997)" / "game3.MOV"))
+
+    assert note1size > 0
+    assert note1size < 0.23
+    assert video1size > 3300
+    assert video1size < 3320
+
+def test_obsidian_filesize_check():
+
+    note1size = getObsidianNoteFileSize(Path(TEST_NOTES_DIRECTORY / "Game 1.md"))
+    video1size = getObsidianNoteFileSize(Path(TEST_FOOTAGE_DIRECTORY / "Game 3 (1997)" / "game3.MOV"))
+
+    assert note1size > 0
+    assert note1size < 0.23
+    assert video1size == None
 
 

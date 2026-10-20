@@ -1,15 +1,17 @@
 import os, decimal
 decimal.getcontext().prec = 3
 from utils.errors import (EnvReadError,InvalidPathError)
+from pathlib import Path
+from typing import Any
 
 FORBIDDEN_PATHS = [
         "/", "/*",
     ]
 
-def ValidateFootagePath(footage_path: str | None) -> str:
+def ValidateFootagePath(footage_path: str | None) -> Path:
     """Checks the passed footage path and returns the validated path. Raises appropriate errors if path is invalid."""
 
-    if footage_path == None:
+    if footage_path is None:
         if not os.path.exists(".env"):
             raise EnvReadError("Error when resolving footage path: Cannot find .env file in the project root. Check that you have a file named '.env' in the same root folder as the settings.py and main.py files. Refer to the '.env.example' file for file formatting.")
 
@@ -22,16 +24,15 @@ def ValidateFootagePath(footage_path: str | None) -> str:
     if not os.path.exists(footage_path):
         raise InvalidPathError(f"The path '{footage_path}' does not exist. Make sure the submitted path points to an existing footage folder.")
 
-    return footage_path
+    return Path(footage_path)
 
-def ValidateObsidianPath(obsidian_path: str | None, scan_obsidian: bool, initialize_obsidian: bool) -> {str | None, bool}:
+def ValidateObsidianPath(obsidian_path: str | None, scan_obsidian: bool, initialize_obsidian: bool) -> {Path | None, bool}:
     """Checks the submitted obsidian path and raises appropriate errors if the Obsidian path is invalid but obsidian scannig is set to true."""
 
-
-    if not scan_obsidian or not initialize_obsidian:
+    if not scan_obsidian and not initialize_obsidian:
         return None
     
-    if obsidian_path == None:
+    if obsidian_path is None:
         if not os.path.exists(".env"): 
             raise EnvReadError("Can't read Obsidian Database folder from .env or from passed arguments, but SCAN_OBSIDIAN_DB has been set to True in settings.py. Check that you have an .env file where your Obsidian folder is properly configured.")
         
@@ -49,15 +50,16 @@ def ValidateObsidianPath(obsidian_path: str | None, scan_obsidian: bool, initial
         
         raise FileNotFoundError(f"The specified Obsidian database folder path {obsidian_path} does not exist, but SCAN_OBSIDIAN_DB has been set to True in settings.py. Either set SCAN_OBSIDIAN_DB to False or check that your Obsidian folder is properly configured.")
     
-    return obsidian_path
+    return Path(obsidian_path)
 
-def ValidateOutputPath(output_path: str | None, use_custom_output_path: bool) -> str:
-    """Validate the output path."""
-    
+def ValidateOutputPath(output_path: str | None, use_custom_output_path: bool, sysargv: list[Any]) -> Path:
+    """Validate the output path and return the path the script will use."""
+
     if not use_custom_output_path:
-        return "./Output/"
+        script_dir = Path(sysargv[0]).resolve().parent
+        return script_dir / "Output"
 
-    if output_path == None:
+    if output_path is None:
         if not os.path.exists(".env"): 
             raise EnvReadError("Can't read Output file Database folder from .env or from passed arguments. set to True in settings.py. Check that you have an .env file where your Output directory is properly configured.")
 
@@ -71,4 +73,4 @@ def ValidateOutputPath(output_path: str | None, use_custom_output_path: bool) ->
             print(f"The path {output_path} does not exist, and when trying to create it the script does not have appropriate permissions. Either check the output folder or grant the script elevated rights.")
             raise
 
-    return output_path
+    return Path(output_path)
