@@ -172,6 +172,54 @@ def test_rating_validation_errors():
     with pytest.raises(errors.InvalidStarRatingError):
         assert validateRating(4.3, settings)
 
+def test_metadata_gamename(testdata):
+
+    settings = Settings()
+
+    settings.DEFAULT_PLATFORM = "PC"
+    settings.RELEASE_YEAR_IN_FOLDERNAME = True
+    settings.PLATFORM_IN_FOLDERNAME = True
+    settings.FOLDERNAME_CUSTOM_CATEGORIES = True
+    settings.FOOTAGE_FOLDERNAME_CATEGORIES = {
+        "MC Mods" : ("Minecraft mods","Xbox"),
+    }
+    settings.SCAN_OBSIDIAN_DB = True
+    settings.OBSIDIAN_DB_PATH = TEST_NOTES_DIRECTORY
+    settings.GAME_PLATFORMS = {
+    "00" : "Not a game",
+    "Arcade" : "Pelihallipelit",
+    "Atari 2600" : "Atari 2600",
+    "CDi" : "Philips CD-i",
+    "DOS" : "MS-DOS",
+    "Dreamcast" : "Sega Dreamcast",
+    "GB" : "Nintendo Game Boy",
+    "GBA" : "Nintendo Game Boy Advance",
+    "GBC" : "Nintendo Game Boy Color",
+    "Lautapelit" : "Lautapelit",
+    "Mobiilipelit" : "Mobiilipelit",
+    "N64" : "Nintendo 64",
+    "NES" : "Nintendo Entertainment System",
+    "NGC" : "Nintendo Gamecube",
+    "PICO-8" : "Pico-8",
+    "PS2" : "Sony Playstation 2",
+    "PSX" : "Sony Playstation",
+    "Sega Genesis" : "Sega Genesis",
+    "Sega Saturn" : "Sega Saturn",
+    "SNES" : "Super Nintendo Entertainment System",
+    "TIC-80" : "TIC-80",
+    "XBOX" : "XBox",
+    "Virtual Boy" : "Nintendo Virtual Boy",
+    "Web" : "Browser",
+    "XYZ" : "Custom defined game platform"
+    }
+
+    game = TEST_FOOTAGE_DIRECTORY / "N64 - Game 5 (1999)"
+    metadata, errors = getGameMetadata(game,settings)
+
+    assert metadata["gamename"] == "Game 5"
+
+
+
 
 def test_full_metadata_fetch(testdata):
 
@@ -217,12 +265,12 @@ def test_full_metadata_fetch(testdata):
     footageFolder1 = TEST_FOOTAGE_DIRECTORY / "Game 1"
     g1_metadata, errors1 = getGameMetadata(footageFolder1, settings)
 
-    assert g1_metadata.get("year") == 1822 # from the md file
-    assert g1_metadata.get("genres") == ["Räiskintä"] # from the md file
-    assert g1_metadata.get("platforms") == ["Sega Genesis"] # from the md file
-    assert g1_metadata.get("playtime_mins") == 408
-    assert 0 < g1_metadata.get("md_size") < 0.23
-    assert g1_metadata.get("rating") == None # invalid rating
+    assert g1_metadata["year"] == 1822 # from the md file
+    assert g1_metadata["genres"] == ["Räiskintä"] # from the md file
+    assert g1_metadata["platforms"] == ["Sega Genesis"] # from the md file
+    assert g1_metadata["playtime_mins"] == 408
+    assert 0 < g1_metadata["md_size"] < 0.23
+    assert g1_metadata["rating"] == None # invalid rating
     assert isinstance(errors1[0],errors.TooHighRatingError) # specifically, too high rating error
 
 def test_full_metadata_no_markdown_file(testdata):
@@ -270,16 +318,17 @@ def test_full_metadata_no_markdown_file(testdata):
     metadata, errors = getGameMetadata(footagedir, settings)
 
     # matching markdown file doesn't exist for this test footage
-    assert metadata.get("year") == 1997
-    assert metadata.get("platforms") == ["PC"] # default
-    assert metadata.get("rating") == None
-    assert metadata.get("categories") == []
-    assert metadata.get("genres") == []
-    assert metadata.get("playtime_mins") == None
-    assert metadata.get("game_series") == None
-    assert metadata.get("developers") == []
-    assert metadata.get("publishers") == []
-    assert metadata.get("md_size") == None
+    assert metadata["year"] == 1997
+    assert metadata["platforms"] == ["PC"] # default
+    assert metadata["rating"] == None
+    assert metadata["categories"] == []
+    assert metadata["genres"] == []
+    assert metadata["playtime_mins"] == None
+    assert metadata["game_series"] == None
+    assert metadata["developers"] == []
+    assert metadata["publishers"] == []
+    assert metadata["md_size"] == None
+    assert isinstance(metadata["developers"],list)
 
 def test_misspelled_platform_folder_name(testdata):
 
@@ -325,4 +374,20 @@ def test_misspelled_platform_folder_name(testdata):
     footagedir = TEST_FOOTAGE_DIRECTORY / "PSZ - Game 7 (1998)"
     metadata, errors = getGameMetadata(footagedir, settings)
 
+    assert metadata["gamename"] == "PSZ - Game 7"
+
+# TODO: separate tests for individual components
+# TODO: test game name identification
+## TODO: test year identification
+# TODO: test platform identification
+# TODO: test category identification
+
+def test_get_gamename_from_folder(testdata):
+
+    settings = Settings()
+    settings.RELEASE_YEAR_IN_FOLDERNAME = True
+    settings.PLATFORM_IN_FOLDERNAME = True
+
+    footagedir = TEST_FOOTAGE_DIRECTORY / "N64 - Game 4 (1999)"
+    metadata, errors = getGameMetadata(footagedir, settings)
     
