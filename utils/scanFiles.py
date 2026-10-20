@@ -94,7 +94,7 @@ def parseFolderNameData(folderName: Path | str, settings:Settings) -> {str, int 
     Raises:
         FileNotFoundError: if obsidian_path doesn't exist."""
 
-    dirName = str(folderName).replace(str(settings.GAMEPLAY_FOOTAGE_PATH),"").strip()
+    dirName = Path(folderName).name
 
     yearInDirName = settings.RELEASE_YEAR_IN_FOLDERNAME
     platformInDirName = settings.PLATFORM_IN_FOLDERNAME
@@ -197,6 +197,8 @@ def getGameMetadata(footage_folder_path:Path | str, settings: Settings | None = 
     """
 
     errors = []
+
+
 
     if settings == None:
         raise ValueError("Game metadata parsing failed due to no settings being passed to the func.")
