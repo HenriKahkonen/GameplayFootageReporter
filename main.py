@@ -4,7 +4,7 @@ decimal.getcontext().prec = 3
 from utils.errors import (EnvReadError,InvalidPathError)
 from utils.scanFiles import (getFootageFolders, getGameMetadata)
 from utils.validateFiles import (ValidateFootagePath, ValidateObsidianPath, ValidateOutputPath)
-from utils.testHelpers import UnpackTests, ValidateTestFiles, GenerateTestFileValidationBaseline, DeleteTestFiles
+from Test.pytest.conftest import UnpackTests, ValidateTestFiles, GenerateTestFileValidationBaseline, DeleteTestFiles
 from utils.settingsLoader import Settings
 from pathlib import Path
 import time
