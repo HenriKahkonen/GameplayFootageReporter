@@ -130,7 +130,7 @@ def get_file_size(filePath: str | Path, rounded: bool = False, decimals: int = 2
     return size_bytes / 1024
 
 def get_obsidian_note_filesize(filepath: str | Path) -> float | None:
-
+    """Get filesize of obsidian note or None if file is invalid or not a markdown file."""
     path = Path(filepath)
     path_extension = os.path.splitext(path)[-1].lower()
     
@@ -158,10 +158,10 @@ def parse_obsidian_note(
     called "NES - Game 5 (1982).md" anywhere under obsidian_path.
 
     Returns:
-        None if scanning is disabled, no note matches, or the note has no valid
-        frontmatter. Otherwise a dict with one key per entry in
-        settings.OBSIDIAN_HEADERS plus the file size under md_file_size. Missing or empty values become None
-        (or [] for list-type headers).
+        obd : None if scanning is disabled, no note matches, or the note has no valid
+            frontmatter. Otherwise a dict with one key per entry in
+            settings.OBSIDIAN_HEADERS plus the file size under md_file_size. Missing or empty values become None
+            (or [] for list-type headers).
 
     Raises:
         FileNotFoundError: if obsidian_path doesn't exist.

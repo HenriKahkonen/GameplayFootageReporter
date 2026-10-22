@@ -248,18 +248,21 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
     Returns a dictionary, with the following values and datatypes:
     
     Returns:
-        game_name : str
-        year : int | None
-        platforms : []
-        categories : []
-        genres : []
-        rating : int | None
-        playtime_mins : int | None
-        game_series : str | None
-        developers : []
-        publishers : []
-        md_size : int | None (as kilobytes)
-        errors : a separate list from the dictionary with the raised errors
+        metadata : {
+            game_name : str,
+            year : int | None,
+            platforms : [],
+            categories : [],
+            genres : [],
+            rating : int | float | None,
+            playtime_mins : int | None,
+            game_series : str | None,
+            developers : [],
+            publishers : [],
+            md_size : float | None # (as kilobytes)
+            }
+        errors : a list with the raised errors, allowing the function 
+            to return something and handle the raised exceptions after the fact
     
     Raises:
         errors: Raised errors are collected to a list and returned
