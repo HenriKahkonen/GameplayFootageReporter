@@ -190,6 +190,26 @@ def footage_dir(testdata) -> Path:
     return testdata.footage
 
 @pytest.fixture(scope="session")
+def test_game_paths(footage_dir) -> list[Path]:
+    game_folders = [
+        "Game 1",
+        "Game 2 (2002)",
+        "Game 3 (1997)",
+        "N64 - Game 4 (1999)",
+        "NES - Game 5 (1982)",
+        "PS2 - Game 8 (2002)",
+        "PSZ - Game 7 (1998)",
+        "SNES - Game 6 (1996)",
+    ]
+
+    paths = []
+
+    for game in game_folders:
+        paths.append(footage_dir / game)
+
+    return paths
+
+@pytest.fixture(scope="session")
 def notes_dir(testdata) -> Path:
     return testdata.notes
 

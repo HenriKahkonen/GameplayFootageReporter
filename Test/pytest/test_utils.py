@@ -2,6 +2,7 @@
 Tests for miscellaneous utilities.
 """
 
+import os
 import pytest
 
 from Test.pytest.conftest import sha256_hash
@@ -14,3 +15,9 @@ def test_sha256_hash(footage_dir):
 
     with pytest.raises(FileNotFoundError):
         sha256_hash(footage_dir / "filethatshouldnotexist.gafh")
+
+def test_test_game_list(test_game_paths):
+    """Test that the test game paths resolve correctly."""
+
+    for path in test_game_paths:
+        assert os.path.isdir(path)

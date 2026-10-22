@@ -24,10 +24,12 @@ def test_wikilink_strip():
 
 def test_wikilink_multiple_strip():
 
-    assert strip_obsidian_wikilinks("[[Linkki 1]], minkä jälkeen tulee [[Linkki 2]]") == "Linkki 1, minkä jälkeen tulee Linkki 2"
+    assert strip_obsidian_wikilinks(
+        "[[Linkki 1]], minkä jälkeen tulee [[Linkki 2]]"
+        ) == "Linkki 1, minkä jälkeen tulee Linkki 2"
 
 def test_obsidian_index_build(notes_dir):
-    
+
     assert build_obsidian_note_index(notes_dir) == {
         "game 1" : Path(notes_dir / "Game 1.md"),
         "game 2 (2002)" : Path(notes_dir / "Game 2 (2002).md"),
@@ -47,12 +49,12 @@ def test_name_normalization():
     assert normalize_name("Test\nNewline") == "test\nnewline"
 
 def test_special_chars_normalization():
-    
+
     assert normalize_name("Straße") == "strasse"
 
 def test_obsidian_frontmatter_get_nofrontmatter(notes_dir):
 
-    assert get_obsidian_note_frontmatter(Path(notes_dir / "SNES - Game 6 (1996).md")) == None
+    assert get_obsidian_note_frontmatter(Path(notes_dir / "SNES - Game 6 (1996).md")) is None
 
 def test_obsidian_frontmatter_get(notes_dir):
 
@@ -87,7 +89,7 @@ def test_obsidian_frontmatter_read(notes_dir):
     assert note2data["Alusta(t)"] == ["[[PC]]","Useilla alustoilla"]
 
 def test_obsidian_frontmatter_datatypes(notes_dir):
-        
+
     note1data = read_obsidian_note_frontmatter(Path(notes_dir / "Game 1.md"))
     note2data = read_obsidian_note_frontmatter(Path(notes_dir / "NES - Game 5 (1982).md"))
 
@@ -104,8 +106,8 @@ def test_parse_obsidian_note(notes_dir):
 
     note3 = parse_obsidian_note("SNES - Game 6 (1996)", settings, notes_dir) # note doesn't have valid frontmatter
 
-    assert note2 == None
-    assert note3 == None
+    assert note2 is None
+    assert note3 is None
     assert isinstance(note1,dict)
     assert note1["Rating"] == 6
 
@@ -127,6 +129,4 @@ def test_obsidian_filesize_check(notes_dir, footage_dir):
 
     assert note1size > 0
     assert note1size < 0.23
-    assert video1size == None
-
-
+    assert video1size is None

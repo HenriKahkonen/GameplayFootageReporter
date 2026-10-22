@@ -240,6 +240,34 @@ def test_full_metadata_no_markdown_file(settings, footage_dir):
     assert not scan_errors
     assert isinstance(metadata["developers"], list)
 
+def test_metadata_returns_list_values_instead_of_none(settings,test_game_paths):
+    """Test that the platforms, genres, developers, categories and platforms return list types regardless of condtitions"""
+
+    for game in test_game_paths:
+        metadata = get_game_metadata(game,settings)[0]
+        assert isinstance(metadata["developers"],list)
+        assert isinstance(metadata["publishers"],list)
+        assert isinstance(metadata["categories"],list)
+        assert isinstance(metadata["genres"],list)
+        assert isinstance(metadata["platforms"],list)
+
+def test_metadata_returns_correct_data_types(settings,test_game_paths):
+    """Test that the metadata function always returns correct datatypes"""
+
+    for game in test_game_paths:
+        metadata = get_game_metadata(game,settings)[0]
+        assert isinstance(metadata["game_name"],str)
+        assert isinstance(metadata["year"],int | None)
+        assert isinstance(metadata["platforms"],list)
+        assert isinstance(metadata["categories"],list)
+        assert isinstance(metadata["rating"],int | float | None)
+        assert isinstance(metadata["playtime_mins"],int | None)
+        assert isinstance(metadata["game_series"],str | None)
+        assert isinstance(metadata["developers"],list)
+        assert isinstance(metadata["publishers"],list)
+        assert isinstance(metadata["genres"],list)
+        assert isinstance(metadata["md_size"],float | None)
+
 
 def test_misspelled_platform_folder_name(settings, footage_dir):
 
@@ -248,12 +276,6 @@ def test_misspelled_platform_folder_name(settings, footage_dir):
 
     assert metadata["game_name"] == "PSZ - Game 7"
     assert not scan_errors
-
-# TODO: separate tests for individual components
-# TODO: test game name identification
-## TODO: test year identification
-# TODO: test platform identification
-# TODO: test category identification
 
 def test_get_gamename_from_folder(settings, footage_dir):
 
