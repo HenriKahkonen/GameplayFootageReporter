@@ -38,10 +38,10 @@ def parse_release_year_from_folder_name(
     Returns:
         year : int | None, just the year as 4 digits
         cleaned_name | game_name : If year extraction succeeds, returns the input name 
-        without the parantheses block. If extraction fails, returns original input string or Path.
+            without the parantheses block. If extraction fails, returns original input game or folder name.
     """
 
-    game_name = str(folder_name).strip()
+    game_name = Path(folder_name).name
 
     if settings.RELEASE_YEAR_IN_FOLDERNAME:
         match = re.search(r"\s*\((\d{4})\)$", game_name)
@@ -68,11 +68,11 @@ def parse_platform_from_folder_name(
         platform: str | None, the game platform's full, 
             untruncated name. If the platform name in the folder name is a known shorthand defined in
             settings.py, the shorthand will be mapped to the longer version in this func's return.
-        game_name: str, the input string with the parsed platform prefix removed.
+        game_name: str, the input game (folder) name with the parsed platform prefix removed.
 
 
     """
-    game_name = str(folder_name).strip()
+    game_name = Path(folder_name).name
     separator = settings.PLATFORM_PREFIX_SEPARATOR
     game_platforms_map = settings.GAME_PLATFORMS
     default_platform = settings.DEFAULT_PLATFORM
@@ -110,7 +110,7 @@ def parse_category_from_folder_name(
         cleaned_name : the cleaned name of the game after the parsing operation
     """
 
-    dir_name = str(folder_name).strip()
+    dir_name = Path(folder_name).name
     categories_map = settings.FOOTAGE_FOLDERNAME_CATEGORIES
     separator = settings.PLATFORM_PREFIX_SEPARATOR
     game_platforms = settings.GAME_PLATFORMS
@@ -142,10 +142,11 @@ def parse_full_folder_name_data(
     """Takes the settings and the directory name of the game's footage and returns its data split into logical stems.
     
     Returns:
-        str: Game name
+        str: Game name, with the year and category / platform compnents stripped,
+            if they have been identified
         int: Release year        
-        [str]: Game platform, platform returned as list
-        [str]: Game category, category returned as list
+        str: Game platform, platform returned as list
+        str: Game category, category returned as list
 
     Raises:
         FileNotFoundError: if obsidian_path doesn't exist."""
@@ -169,9 +170,6 @@ def parse_full_folder_name_data(
         platform, dir_name = parse_platform_from_folder_name(dir_name, settings)
 
     game_name = dir_name
-
-    platform = [platform] if platform else []
-    category = [category] if category else []
 
     return game_name, release_year, platform, category
 
@@ -289,6 +287,14 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
 
     # Prefer data defined in Obsidian, fallback to data parsed from dir name
     # game_name always parsed from folder name
+
+    # Fallback dir_platform and dir_category are turned into lists;
+    # the return value expects the possibility of there being multiple of both,
+    # but the data read from folder name can only return single value.
+
+    dir_platform = [dir_platform] if dir_platform else []
+    dir_category = [dir_category] if dir_category else []
+
     metadata = {
         "game_name" : game_name,
         "year" : omd.get(settings.OBSIDIAN_METADATA_MAP["year"],dir_release_year),
@@ -302,6 +308,8 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
         "publishers" : omd.get(settings.OBSIDIAN_METADATA_MAP["publishers"], []),
         "md_size" : omd.get("md_file_size", None)
     }
+
+
 
     return metadata, errors
 
