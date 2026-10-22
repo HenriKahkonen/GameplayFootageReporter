@@ -1,3 +1,7 @@
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
+
+
 """Shared fixtures for pytest"""
 
 import json
@@ -11,7 +15,7 @@ from zipfile import ZipFile
 
 import pytest
 
-from utils.settingsLoader import Settings
+from utils.settings_loader import Settings
 
 ### Test data locations
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -50,7 +54,7 @@ TEST_GAME_PLATFORMS = {
     "Virtual Boy": "Nintendo Virtual Boy",
     "Web": "Browser",
 }
- 
+
 TEST_FOOTAGE_CATEGORIES = {
     "Doom Mods": ("Doom mod", "PC"),
     "Suomipelit": ("Suomipelit","PC"),
@@ -58,7 +62,7 @@ TEST_FOOTAGE_CATEGORIES = {
 
 ### Test data helper funcs
 
-def sha256Hash(filepath):
+def sha256_hash(filepath):
     """Compute the sha256 hash of the file."""
     hash_func = hashlib.sha256()
     with open(filepath, "rb") as file:
@@ -66,40 +70,41 @@ def sha256Hash(filepath):
             hash_func.update(chunk)
     return hash_func.hexdigest()
 
-def _collectTestFiles():
+def _collect_test_files():
     """Return a sorted list of all files inside the test directories."""
     files = []
-    for dirName in TEST_FILE_DIRS:
-        dirPath = TESTDATA_DIR / dirName
-        if dirPath.is_dir():
-            files.extend(p for p in dirPath.rglob("*") if p.is_file())
+    for dir_name in TEST_FILE_DIRS:
+        dir_path = TESTDATA_DIR / dir_name
+        if dir_path.is_dir():
+            files.extend(p for p in dir_path.rglob("*") if p.is_file())
     return sorted(files)
 
-def UnpackTests():
-    """Unpacks the tests' data from the zip directory. The test data includes a few small video files, so they come zipped to save space in the repository."""
+def unpack_tests():
+    """Unpacks the tests' data from the zip directory. 
+    The test data includes a few small video files, so they come zipped 
+    to save space in the repository."""
     if not os.path.exists(ZIP_ARCHIVE_PATH):
         raise FileNotFoundError(f"The test zip arhive at {ZIP_ARCHIVE_PATH} was not found!")
-    with ZipFile(ZIP_ARCHIVE_PATH, 'r') as zObject:
-        zObject.extractall(path=TESTDATA_DIR)
-    pass
+    with ZipFile(ZIP_ARCHIVE_PATH, 'r') as zip_object:
+        zip_object.extractall(path=TESTDATA_DIR)
 
-def GenerateTestFileValidationBaseline():
-    """Generate a file of all the hashes in the directory that can then be compared
-    to to validate the test files."""
-    files = _collectTestFiles()
+def generate_test_file_validation_baseline():
+    """Generate a file of all the hashes in the directory that can then 
+    be compared to to validate the test files."""
+    files = _collect_test_files()
     if not files:
         raise FileNotFoundError(
-            f"No test files found in {TESTDATA_DIR}. Did you call UnpackTests() first?"
+            f"No test files found in {TESTDATA_DIR}. Did you call unpack_tests() first?"
         )
     baseline = {
-        p.relative_to(TESTDATA_DIR).as_posix(): sha256Hash(p)
+        p.relative_to(TESTDATA_DIR).as_posix(): sha256_hash(p)
         for p in files
     }
     with open(SHA256_BASELINE_PATH, "w", encoding="utf-8") as f:
         json.dump(baseline, f, indent=2, sort_keys=True)
     return baseline
 
-def ValidateTestFiles():
+def validate_test_files():
     """Check that the files match their expected hash values.
 
     Returns True if everything matches; otherwise raises a ValueError
@@ -110,13 +115,13 @@ def ValidateTestFiles():
     with open(SHA256_BASELINE_PATH, "r", encoding="utf-8") as f:
         expected = json.load(f)
 
-    actual_files = {p.relative_to(TESTDATA_DIR).as_posix(): p for p in _collectTestFiles()}
+    actual_files = {p.relative_to(TESTDATA_DIR).as_posix(): p for p in _collect_test_files()}
 
     missing = sorted(set(expected) - set(actual_files))
     unexpected = sorted(set(actual_files) - set(expected))
     mismatched = sorted(
         name for name, path in actual_files.items()
-        if name in expected and sha256Hash(path) != expected[name]
+        if name in expected and sha256_hash(path) != expected[name]
     )
 
     if missing or unexpected or mismatched:
@@ -130,13 +135,13 @@ def ValidateTestFiles():
         raise ValueError("Test file validation failed:\n" + "\n".join(problems))
     return True
 
-def DeleteTestFiles():
+def delete_test_files():
     """Free up disk space by deleting the unneeded test files."""
-    for dirName in TEST_FILE_DIRS:
-        dirPath = TESTDATA_DIR / dirName
-        if dirPath.is_dir():
-            shutil.rmtree(dirPath)
-            print(f"{dirPath} removed.")
+    for dir_name in TEST_FILE_DIRS:
+        dir_path = TESTDATA_DIR / dir_name
+        if dir_path.is_dir():
+            shutil.rmtree(dir_path)
+            print(f"{dir_path} removed.")
 
 #### Pytest additional options
 
@@ -165,12 +170,12 @@ class DataPaths:
 
 @pytest.fixture(scope="session")
 def testdata(request) -> Generator[DataPaths, None, None]:
-    UnpackTests()
+    unpack_tests()
     try:
         if request.config.getoption("--regen-testdata-baseline"):
-            GenerateTestFileValidationBaseline()
+            generate_test_file_validation_baseline()
         else:
-            ValidateTestFiles()
+            validate_test_files()
         yield DataPaths(
             root=TESTDATA_DIR,
             footage=TESTDATA_DIR / FOOTAGE_DIRNAME,
@@ -178,7 +183,7 @@ def testdata(request) -> Generator[DataPaths, None, None]:
         )
     finally:
         if request.config.getoption("--delete-testdata"):
-            DeleteTestFiles()
+            delete_test_files()
 
 @pytest.fixture(scope="session")
 def footage_dir(testdata) -> Path:
@@ -195,20 +200,20 @@ def settings(footage_dir, notes_dir) -> Settings:
     Function-scoped, so tests can change any value without affecting others.
     """
     s = Settings()
- 
+
     s.GAMEPLAY_FOOTAGE_PATH = footage_dir
     s.OBSIDIAN_DB_PATH = notes_dir
     s.SCAN_OBSIDIAN_DB = True
- 
+
     s.DEFAULT_PLATFORM = "PC"
     s.PLATFORM_IN_FOLDERNAME = True
     s.PLATFORM_PREFIX_SEPARATOR = " - "
     s.RELEASE_YEAR_IN_FOLDERNAME = True
     s.GAME_PLATFORMS = dict(TEST_GAME_PLATFORMS)
- 
+
     s.FOLDERNAME_CUSTOM_CATEGORIES = True
     s.FOOTAGE_FOLDERNAME_CATEGORIES = TEST_FOOTAGE_CATEGORIES
- 
+
     s.validate()
 
     return s

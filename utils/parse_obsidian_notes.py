@@ -1,3 +1,7 @@
+"""
+Module for reading the Obsidian notes to extract game metadata.
+"""
+
 import logging
 import re
 import unicodedata
@@ -8,23 +12,21 @@ import os
 
 import yaml
 
-from utils.settingsLoader import Settings
+from utils.settings_loader import Settings
 
 log = logging.getLogger(__name__)
-
-
 
 # [[Target]], [[Target|Alias]], [[Target#Heading]]  ->  Target
 _WIKILINK_RE = re.compile(r"\[\[([^\]|#]*)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
 
 
-def normalizeName(name: str) -> str:
+def normalize_name(name: str) -> str:
     """Normalize a file/folder name for comparison (case and unicode form)."""
     return unicodedata.normalize("NFC", name).casefold().strip()
 
 
 @lru_cache(maxsize=4)
-def buildObsidianNoteIndex(obsidian_path: str) -> dict[str, Path]:
+def build_obsidian_note_index(obsidian_path: str) -> dict[str, Path]:
     """
     Walk the vault once and map normalized note names to their paths.
     Cached so scanning many folders doesn't re-walk the vault each time.
@@ -32,7 +34,7 @@ def buildObsidianNoteIndex(obsidian_path: str) -> dict[str, Path]:
     """
     index: dict[str, Path] = {}
     for md_file in Path(obsidian_path).rglob("*.md"):
-        key = normalizeName(md_file.stem)
+        key = normalize_name(md_file.stem)
         if key in index:
             log.warning("Duplicate Obsidian note name '%s': %s and %s (keeping first)",
                         md_file.stem, index[key], md_file)
@@ -41,7 +43,7 @@ def buildObsidianNoteIndex(obsidian_path: str) -> dict[str, Path]:
     return index
 
 
-def stripObsidianWikilinks(text: str) -> str:
+def strip_obsidian_wikilinks(text: str) -> str:
     """Strips Obsidian wikilinks to just their text."""
     return _WIKILINK_RE.sub(lambda m: m.group(1), text).strip()
 
@@ -55,12 +57,12 @@ def _coerce_scalar(value: Any, target: type) -> Any:
 
     try:
         if target is str:
-            text = stripObsidianWikilinks(str(value))
+            text = strip_obsidian_wikilinks(str(value))
             return text or None
 
         if target in (int, float):
             if isinstance(value, str):
-                value = stripObsidianWikilinks(value).replace(",", ".")  # "3,5" -> "3.5"
+                value = strip_obsidian_wikilinks(value).replace(",", ".")  # "3,5" -> "3.5"
                 if not value:
                     return None
             number = float(value)
@@ -89,7 +91,7 @@ def _coerce(value: Any, spec: Any) -> Any:
 
 _FRONTMATTER_RE = re.compile(r"\A\ufeff?---[ \t]*\n(.*?)\n---[ \t]*(?:\n|\Z)", re.DOTALL)
 
-def getObsidianFrontmatter(note_path: Path) -> str | None:
+def get_obsidian_note_frontmatter(note_path: Path) -> str | None:
     """ Try and read the frontmatter (or: headers) of the obsidian note at the specified path. Returns either the string of the frontmatter or None."""
     text = note_path.read_text(encoding="utf-8-sig")
     match = _FRONTMATTER_RE.match(text)
@@ -98,9 +100,9 @@ def getObsidianFrontmatter(note_path: Path) -> str | None:
         return None
     return match.group(1)
 
-def readObsidianFrontmatter(note_path: Path) -> dict[str, Any] | None:
+def read_obsidian_note_frontmatter(note_path: Path) -> dict[str, Any] | None:
     """Return the note's YAML frontmatter as a dict, or None if missing/invalid."""
-    frontmatter_raw_text = getObsidianFrontmatter(note_path)
+    frontmatter_raw_text = get_obsidian_note_frontmatter(note_path)
     if frontmatter_raw_text is None:
         return None
     
@@ -111,7 +113,7 @@ def readObsidianFrontmatter(note_path: Path) -> dict[str, Any] | None:
         return None
     return data if isinstance(data, dict) else None
 
-def getFileSize(filePath: str | Path, rounded: bool = False, decimals: int = 2) -> float:
+def get_file_size(filePath: str | Path, rounded: bool = False, decimals: int = 2) -> float:
     """Takes a file path and returns the file's size in kiloBytes. Only returns file size of files, not folders."""
     path = Path(filePath)
     if not path.exists():
@@ -127,7 +129,7 @@ def getFileSize(filePath: str | Path, rounded: bool = False, decimals: int = 2) 
 
     return size_bytes / 1024
 
-def getObsidianNoteFileSize(filepath: str | Path) -> float | None:
+def get_obsidian_note_filesize(filepath: str | Path) -> float | None:
 
     path = Path(filepath)
     path_extension = os.path.splitext(path)[-1].lower()
@@ -136,15 +138,15 @@ def getObsidianNoteFileSize(filepath: str | Path) -> float | None:
         return None
 
     try:
-        size_in_kb = getFileSize(filepath)
+        size_in_kb = get_file_size(filepath)
         return size_in_kb
     except (ValueError, FileNotFoundError):
         pass
 
     return None
 
-def parseObsidianNote(
-    folderName: str | Path,
+def parse_obsidian_note(
+    folder_name: str | Path,
     settings: Settings,
     obsidian_path: str | Path,
 ) -> dict | None:
@@ -171,17 +173,17 @@ def parseObsidianNote(
     if not obsidian_path.is_dir():
         raise FileNotFoundError(f"Obsidian path does not exist or is not a folder: {obsidian_path}")
 
-    note_name = Path(folderName).name
-    note_path = buildObsidianNoteIndex(str(obsidian_path)).get(normalizeName(note_name))
+    note_name = Path(folder_name).name
+    note_path = build_obsidian_note_index(str(obsidian_path)).get(normalize_name(note_name))
     if note_path is None:
         return None
 
-    frontmatter = readObsidianFrontmatter(note_path)
+    frontmatter = read_obsidian_note_frontmatter(note_path)
     if frontmatter is None:
         return None
 
     # Get md file size or None if invalid or unavailable
-    md_file_size = getObsidianNoteFileSize(note_path)
+    md_file_size = get_obsidian_note_filesize(note_path)
 
     result = {
         header: _coerce(frontmatter.get(header), spec)

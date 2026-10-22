@@ -1,16 +1,18 @@
+"""
+Module for all of the sqlite related functions and classes.
+"""
+
 import pysqlite3 as sqlite3
-import settings
 from typing import Optional
 from datetime import datetime
 from pathlib import Path
+
 from sqlalchemy import foreignkey, create_engine, select, event
 from sqlalchemy.orm import (
     DeclarativeBase, Mapped, mapped_column, relationship, Session
 )
 import os
-
-
-
+import settings
 
 
 class Base(DeclarativeBase):
@@ -93,7 +95,4 @@ class GameplayfootageSQLiteDB:
                 id  INTEGER PRIMARY KEY AUTOINCREMENT
                 
             )
-        """) 
-
-
-# where i realized i don't want to write all this manually
+        """)

@@ -1,3 +1,5 @@
+"""Module for custom errors."""
+
 class EnvReadError(Exception):
     """Exception raised for when reading from .env file fails."""
 

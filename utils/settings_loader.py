@@ -1,45 +1,70 @@
-from utils.errors import MalformedSettingsError
+# pylint: disable=invalid-name
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-few-public-methods
+
+"""
+Module for the settings loader class. Settings loader Object reads the values in
+settings.py and loads them into a class where they can be edited during
+runtime. This way the settings.py file can be used as a settings config file with comments.
+"""
+
 from copy import deepcopy
 from typing import Any, Optional
-import settings
-import dotenv
 from pathlib import Path
 
+import dotenv
+
+import settings
+from utils.errors import MalformedSettingsError, EnvReadError
+
 class Settings:
+    """Class that reads the file settings.py and loads the settings into
+    an object that can be edited during runtime. Acts as a sort of holder for
+    pseudo-constant values that should remain unchanged but can be nonetheless
+    manipulated for e.g. testing purposes.
+    
+    Raises:
+        MalformedSettingsError: If the settings.py is malformed
+        EnvReadError: If a value needs to be read from the .env file but it's missing or malformed
+    """
+
     def __init__(self):
         """
         Loader for settings.py. Copies the values into instance attributes so
         they can be changed during runtime without touching the settings module.
  
-        Raises MalformedSettingsError if any value from settings.py is None.
+        Raises:
+            MalformedSettingsError if any value from settings.py is None.
         Values loaded from the .env file are allowed to be None.
         """
- 
+
         # --- Output options ---
         try:
             self.OUTPUT_TO_CUSTOM_DIRECTORY: bool = settings.OUTPUT_TO_CUSTOM_DIRECTORY
             self.LOG_OUTPUT: bool = settings.LOG_OUTPUT
-    
+
             self.CSV_OUTPUT: bool = settings.CSV_OUTPUT
             self.CSV_SEPARATOR: str = settings.CSV_SEPARATOR
             self.CSV_FLOATS_WITH_COMMA: bool = settings.CSV_FLOATS_WITH_COMMA
-    
+
             self.SQLITE_OUTPUT: bool = settings.SQLITE_OUTPUT
-    
+
             # --- Video and ignored files ---
             self.SUPPORTED_VIDEO_FILETYPES: list[str] = deepcopy(settings.SUPPORTED_VIDEO_FILETYPES)
             self.IGNORED_FILETYPES: list[str] = deepcopy(settings.IGNORED_FILETYPES)
-    
+
             # --- Naming conventions ---
             self.PLATFORM_IN_FOLDERNAME: bool = settings.PLATFORM_IN_FOLDERNAME
             self.DEFAULT_PLATFORM: str = settings.DEFAULT_PLATFORM
             self.PLATFORM_PREFIX_SEPARATOR: str = settings.PLATFORM_PREFIX_SEPARATOR
             self.RELEASE_YEAR_IN_FOLDERNAME: bool = settings.RELEASE_YEAR_IN_FOLDERNAME
-    
+
             self.GAME_PLATFORMS: dict[str, str] = deepcopy(settings.GAME_PLATFORMS)
-            self.FOLDERNAME_CUSTOM_CATEGORIES = settings.FOLDERNAME_CUSTOM_CATEGORIES
-            self.FOOTAGE_FOLDERNAME_CATEGORIES: dict[str, tuple[str, str]] = deepcopy(settings.FOOTAGE_FOLDERNAME_CATEGORIES)
-    
+            self.FOLDERNAME_CUSTOM_CATEGORIES: bool = settings.FOLDERNAME_CUSTOM_CATEGORIES
+            self.FOOTAGE_FOLDERNAME_CATEGORIES: dict[str, tuple[str, str]] = (
+                deepcopy(settings.FOOTAGE_FOLDERNAME_CATEGORIES)
+            )
+
             # --- Obsidian ---
             self.SCAN_OBSIDIAN_DB: bool = settings.SCAN_OBSIDIAN_DB
             self.OBSIDIAN_HEADERS: dict[str, Any] = deepcopy(settings.OBSIDIAN_HEADERS)
@@ -57,13 +82,17 @@ class Settings:
             self.CUSTOM_OUTPUT_PATH: Optional[str] = settings.CUSTOM_OUTPUT_PATH
 
             self.SCRIPT_DIR = Path(__file__).resolve().parent
-            self.OUTPUT_PATH = self.CUSTOM_OUTPUT_PATH if self.CUSTOM_OUTPUT_PATH else self.SCRIPT_DIR / "Output" ## python script root / Output
-    
+            self.OUTPUT_PATH = (
+                self.CUSTOM_OUTPUT_PATH if self.CUSTOM_OUTPUT_PATH
+                else self.SCRIPT_DIR / "Output"
+                ) ## python script root / Output
+
             self.validate()
+
         except AttributeError as e:
-            msg = (f"It looks like your settings.py file is malformed. Loading settings returned error: \n{e}")
-            raise MalformedSettingsError(msg)
- 
+            msg = f"It looks like your settings.py file is malformed. Loading settings returned error: \n{e}"
+            raise MalformedSettingsError(msg) from e
+
     # Settings that come from the .env file and may legitimately be None
     _ENV_SETTINGS = frozenset({
         "GAMEPLAY_FOOTAGE_PATH",
@@ -80,7 +109,7 @@ class Settings:
             MalformedSettingsError: if a non-.env setting is None, or if
                 settings contradict each other.
         """
- 
+
         # 1. No None values, except for the ones loaded from .env
         missing = [
             name
@@ -91,26 +120,25 @@ class Settings:
             raise MalformedSettingsError(
                 f"The following settings in settings.py are None: {', '.join(missing)}"
             )
- 
+
         # 2. Settings that contradict each other
         if self.CSV_FLOATS_WITH_COMMA and self.CSV_SEPARATOR == ",":
             raise MalformedSettingsError(
                 'CSV_SEPARATOR cannot be "," when CSV_FLOATS_WITH_COMMA is True.'
             )
- 
+
         # 3. Settings that are conditionally required in .env
         if self.OUTPUT_TO_CUSTOM_DIRECTORY and not self.CUSTOM_OUTPUT_PATH:
-            raise MalformedSettingsError(
+            raise EnvReadError(
                 "OUTPUT_TO_CUSTOM_DIRECTORY is True, but CUSTOM_OUTPUT_PATH is not set in .env."
             )
         if self.SCAN_OBSIDIAN_DB and not self.OBSIDIAN_DB_PATH:
-            raise MalformedSettingsError(
+            raise EnvReadError(
                 "SCAN_OBSIDIAN_DB is True, but OBSIDIAN_DB_PATH is not set in .env."
             )
- 
+
         # 4. Light type checks on the collections
         if not all(ext.startswith(".") for ext in self.SUPPORTED_VIDEO_FILETYPES):
             raise MalformedSettingsError(
                 'Every entry in SUPPORTED_VIDEO_FILETYPES must start with a dot, e.g. ".mp4".'
             )
-
