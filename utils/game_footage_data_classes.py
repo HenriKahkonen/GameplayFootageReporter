@@ -4,7 +4,7 @@ from dataclasses import dataclass, fields
 
 @dataclass
 class GameFootageSummary:
-    """A collection of a game's footage's values."""
+    """A smaller collection of a game's metadata re: video and other files."""
     game_name : str
     video_files : int
     non_video_files : int
@@ -56,14 +56,14 @@ def create_game_footage_summary(
     footage_files: list[FootageVideoFile],
     non_video_files: int,
     obsidian_note_found: bool,
+    other_extensions: list[str] | None = None
 ) -> GameFootageSummary:
     """Create a GameFootageSummary from a list of FootageVideoFile objects.
 
     Params:
         game_name: Name of the game the footage belongs to.
         footage_files: The analyzed video files for this game.
-        non_video_files: Count of files that ffmpeg couldn't analyze
-            (not videos) in the footage folder.
+        non_video_files: Non-video files.
         obsidian_note_found: Whether an Obsidian note exists for the game.
     """
     video_count = len(footage_files)
@@ -74,7 +74,9 @@ def create_game_footage_summary(
     total_minutes = total_length_secs / 60
     avg_size_per_min_mb = total_size_mb / total_minutes if total_minutes else 0.0
 
-    file_ext_list = sorted({f.file_extension.lower() for f in footage_files})
+    video_exts = {f.file_extension.lower() for f in footage_files}
+    other_exts = {e.lower() for e in (other_extensions or [])}
+    file_ext_list = sorted(video_exts | other_exts)
 
     return GameFootageSummary(
         game_name=game_name,

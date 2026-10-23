@@ -6,14 +6,14 @@ as well as deduces the game metadata from the Obsidian notes database.
 """
 
 import sys
-#import time
 from pathlib import Path
 
-#import cv2 # pip install opencv-python
 from utils.scan_files import (
     get_footage_folders,
     get_game_metadata,
-    sort_footage_folder)
+    sort_footage_folder,
+    get_file_extensions
+    )
 from utils.validate_files import (
     validate_footage_path,
     validate_obsidian_path,
@@ -147,7 +147,8 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
             game_name=game_metadata["game_name"],
             footage_files=footage_clips,
             non_video_files=len(other_files),
-            obsidian_note_found=game_metadata["omd_found"]
+            obsidian_note_found=game_metadata["omd_found"],
+            other_extensions=get_file_extensions(other_files)
             )
 
         logger.commit_game_summary(ftg_summary)

@@ -362,3 +362,7 @@ def sort_footage_folder(
             other_files.append(p)
 
     return video_files, other_files
+
+def get_file_extensions(files:list[Path]) -> list[str]:
+    """return list of unique file extensions"""
+    return sorted({p.suffix.lower() for p in files if p.suffix})

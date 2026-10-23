@@ -36,28 +36,38 @@ def analyze_clips(
         footage_files : list[Path]
     ) -> {list[FootageVideoFile], list[Exception]}:
     """Inspect each video file in the submitted list and build a FootageVideoFile for it. Return a list 
-    of FootageVideoFile objects."""
+    of FootageVideoFile objects and a list of errors raised when analyzing the clips."""
 
     clips: list[FootageVideoFile] = []
     errors: list[Exception] = []
 
     for path in footage_files:
-        try:
-            length_secs = round(_probe_duration_secs(path))
-            size_mb = path.stat().st_size / BYTES_PER_MB
-            size_per_min = size_mb / (length_secs / 60) if length_secs else 0.0
+        result : Exception | FootageVideoFile = probe_video_file(path)
 
-            clips.append(
-                FootageVideoFile(
-                    file_name=path.name,
-                    video_length_in_seconds=length_secs,
-                    file_size_in_mb=size_mb,
-                    file_extension=path.suffix.lower(),
-                    size_per_min_in_mb=size_per_min,
-                )
-            )
-
-        except Exception as exc:  # non-fatal: log and move on
-            errors.append(exc)
+        if isinstance(result,FootageVideoFile):
+            clips.append(result)
+        else:
+            errors.append(result)
 
     return clips, errors
+
+def probe_video_file(
+        path: Path | str
+    ) -> FootageVideoFile | Exception:
+    """Try to get all of the video metadata. If an error is raised, 
+    return the error instead of raising it."""
+    try:
+        length_secs = round(_probe_duration_secs(path))
+        size_mb = path.stat().st_size / BYTES_PER_MB
+        size_per_min = size_mb / (length_secs / 60) if length_secs else 0.0
+
+        return FootageVideoFile(
+                file_name=path.name,
+                video_length_in_seconds=length_secs,
+                file_size_in_mb=size_mb,
+                file_extension=path.suffix.lower(),
+                size_per_min_in_mb=size_per_min,
+            )
+    
+    except Exception as exc:
+        return exc
