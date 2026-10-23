@@ -62,3 +62,10 @@ class EmptyFootageDirectoryError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
+class TooManyMinutesWarning(Exception):
+    """A non-fatal warning that warns that the obsidian note has too many minutes in playtime_mins. (Must be under 60)"""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)

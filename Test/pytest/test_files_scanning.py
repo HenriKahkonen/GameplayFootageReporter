@@ -293,3 +293,14 @@ def test_get_gamename_from_folder(settings, footage_dir):
     assert metadata["game_name"] == "Game 8"
 
     assert not scan_errors
+
+def test_obsidian_md_file_too_many_minutes_warning(settings,footage_dir):
+
+    ftg_dir = footage_dir / "Game 2 (2002)"
+
+    metadata, scan_errors = get_game_metadata(ftg_dir, settings)
+
+    assert metadata["game_name"] == "Game 2"
+    assert metadata["omd_found"] is True
+    assert len(scan_errors) == 1
+    assert isinstance(scan_errors[0],errors.TooManyMinutesWarning)

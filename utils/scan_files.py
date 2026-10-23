@@ -12,7 +12,8 @@ from utils.errors import (
     TooLowRatingError,
     CannotParseRatingError,
     InvalidStarRatingError,
-    EmptyFootageDirectoryError
+    EmptyFootageDirectoryError,
+    TooManyMinutesWarning
     )
 def get_footage_folders(directory:str | Path) -> list[str]:
     """Get the list of folders inside the root path in alphabetical order. 
@@ -190,7 +191,10 @@ def parse_full_folder_name_data(
     return game_name, release_year, platform, category
 
 
-def calculate_playtime_from_obsidian_note(obsidian_data_dict: dict, settings: Settings) -> int | None:
+def calculate_playtime_from_obsidian_note(
+        obsidian_data_dict: dict,
+        settings: Settings
+        ) -> tuple[int | None, Exception | None]:
     """
     Reads and calculates playtime from parsed obsidian note dictionary.
     Returns:
@@ -202,19 +206,26 @@ def calculate_playtime_from_obsidian_note(obsidian_data_dict: dict, settings: Se
     pt_mins = obsidian_data_dict.get(settings.OBSIDIAN_METADATA_MAP["playtime_mins"])
 
     if pt_hours is None and pt_mins is None:
-        return None
+        return None, None
+
+    errors: list[Exception] = []
 
     try:
         hours = int(pt_hours) if pt_hours is not None else 0
     except (ValueError, TypeError):
         hours = 0
+        errors.append(ValueError(f"Could not parse playtime hours ({pt_hours!r})"))
 
     try:
         mins = int(pt_mins) if pt_mins is not None else 0
     except (ValueError, TypeError):
         mins = 0
+        errors.append(ValueError(f"Could not parse playtime minutes ({pt_mins!r})"))
 
-    return (hours * 60) + mins
+    if mins >= 60:
+        errors.append(TooManyMinutesWarning(f"Obsidian note has more than 60 minutes in its playtime ({mins})."))
+
+    return (hours * 60) + mins, errors if errors else []
 
 def validate_rating(rating: str | int | float | None, settings: Settings) -> float | None:
     """Validates the rating and outputs the rating or throws errors if rating is invalid.
@@ -307,6 +318,12 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
         errors.append(e)
         game_rating = None
 
+    pt_minutes, pt_errors = calculate_playtime_from_obsidian_note(omd, settings)
+
+    if pt_errors:
+        for e in pt_errors:
+            errors.append(e)
+
     # Prefer data defined in Obsidian, fallback to data parsed from dir name
     # game_name always parsed from folder name
 
@@ -324,7 +341,7 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
         "categories" : omd.get(settings.OBSIDIAN_METADATA_MAP["categories"], dir_category),
         "genres" : omd.get(settings.OBSIDIAN_METADATA_MAP["genres"], []), # Genres never defined in dir name
         "rating" : game_rating,
-        "playtime_mins" : calculate_playtime_from_obsidian_note(omd, settings),
+        "playtime_mins" : pt_minutes,
         "game_series" : omd.get(settings.OBSIDIAN_METADATA_MAP["game_series"], None),
         "developers" : omd.get(settings.OBSIDIAN_METADATA_MAP["developers"], []),
         "publishers" : omd.get(settings.OBSIDIAN_METADATA_MAP["publishers"], []),
