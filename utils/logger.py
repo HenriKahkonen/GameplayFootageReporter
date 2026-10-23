@@ -35,12 +35,11 @@ class FootageAnalysisLogger:
         self.file_name = Path(log_dir / self.file_name)
 
         self.operation_start_time: datetime = datetime.now()
-        self.operation_start_time = None
 
         self.dummy_logger = dummy_logger
 
-        self.error_log = [LoggedFootageAnalysisError]
-        self.games = [GameFootageSummary]
+        self.error_log : list[LoggedFootageAnalysisError] = []
+        self.games : list[GameFootageSummary] = []
 
         # Create the file
         if not self.dummy_logger:
@@ -93,7 +92,12 @@ class FootageAnalysisLogger:
             ) -> dict:
         """Takes the game footage summaries stored in the logger and
         calculates the totals and averages of all of the footage found."""
+
         games_count = len(self.games)
+
+        if games_count == 0:
+            return {}
+
         total_video_files = sum(g.video_files for g in self.games)
         total_non_video_files = sum(g.non_video_files for g in self.games),
         total_length_secs = sum(g.total_video_length_secs for g in self.games)
@@ -135,8 +139,8 @@ class FootageAnalysisLogger:
             with open(self.file_name, mode="a", encoding="utf-8") as f:
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 f.write("*"*100
-                        +f"\nNew search session at {timestamp}\n"
-                        +"*"*100)
+                        +f"\nNew footage analysis session at {timestamp}\n"
+                        +"*"*100+"\n")
 
     def end_logging_session(self):
         """Writes a finishing string to the log file."""
@@ -150,22 +154,32 @@ class FootageAnalysisLogger:
 
         totals = self._calculate_totals_and_averages()
 
-        ftg_hours, remainder = divmod(totals["total_video_length_seconds"],3600)
+        ftg_hours, remainder = divmod(totals.get("total_video_length_seconds",0),3600)
         ftg_mins, ftg_secs = divmod(remainder, 60)
 
         msgs = [
-            "*"*100+f"\nAnalysis finished! Scanned for {duration_str}.\n\n",
-            f"""Analyzed {totals["games_analysed"]} games, {totals["obsidian_notes_found"]} of which a
-            matching Obsidian note was found.""",
-            f"""Found {totals["video_files"]} video clips and {totals["non_video_files"]} other files.
-            A total of {ftg_hours} hours, {ftg_mins} minutes and {ftg_secs} seconds of footage was found, collectively
-            {totals["total_video_size_megabytes"]} Mbs of video footage.""",
-            f"Found the following non-ignored filetypes:\n{totals["file_extensions"]}",
-            f"""Average game footage folder contains {totals["avg_video_files_per_game"]} video
-            clips and {totals["avg_non_video_files_per_game"]} other files. Average length of clips
-            is {totals["avg_clip_length_secs"]} seconds and average file size in
-            megabytes per minute of footage is {totals["avg_size_per_min"]}"""
+            "*" * 100 + f"\nAnalysis finished! Scanned for {duration_str}.\n",
+            (
+                f"Analyzed {totals.get("games_analyzed",0)} games, "
+                f"{totals.get("obsidian_notes_found",0)} of which had a matching Obsidian note."
+            ),
+
+            (
+                f"Found {totals.get("video_files",0)} video clips and {totals.get("non_video_files",0)} other files. "
+                f"A total of {ftg_hours} hours, {ftg_mins} minutes and {ftg_secs} seconds of footage was found, "
+                f"collectively {totals.get("total_video_size_megabytes"),0} Mbs of video footage."
+            ),
+
+            f"Found the following non-ignored filetypes: {totals.get("file_extensions",[])}",
+
+            (
+                f"Average game footage folder contains {totals.get("avg_video_files_per_game",0):.1f} video clips "
+                f"and {totals.get("avg_non_video_files_per_game",0):.1f} other files. "
+                f"Average length of clips is {totals.get("avg_clip_length_secs",0):.1f} seconds "
+                f"and average file size in megabytes per minute of footage is {totals.get("avg_size_per_min",0):.1f} Mb."
+            ),
         ]
+
         for msg in msgs:
             self.log(msg)
 
@@ -178,6 +192,6 @@ class FootageAnalysisLogger:
     def end_logging_session_controlled_crash(self,exc:Exception):
         """End logging session in a controlled way if an uncaught exception fails the process."""
 
-        self.log(f"💥 The following uncaught exception caused the script to fail: {exc!r}")
-        self.log("Attempting to wrap up the log...")
+        self.log(f"💥 The following uncaught exception caused the script to fail: {exc.__class__} 💥{exc.message}")
+        self.log("Attempting to wrap up the log...\n")
         self.end_logging_session()

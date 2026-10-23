@@ -12,6 +12,10 @@ Script scans its target directory recursively and generates a report as a **.csv
 
 **Script currently identifies clip lengths and such only from .mp4 files**. File size total still cumulates from any files within a subfolder.
 
+## Requirements
+
+- ffmpeg installed on the machine running the script
+
 ## Defining settings
 
 - Either through settings.py and .env or with arguments to the script

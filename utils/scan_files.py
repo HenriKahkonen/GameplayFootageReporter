@@ -4,22 +4,38 @@ Module for scanning files and folders to analyze them.
 import os
 import re
 from pathlib import Path
+from textwrap import dedent
 from utils.settings_loader import Settings
 from utils.parse_obsidian_notes import parse_obsidian_note
 from utils.errors import (
     TooHighRatingError,
     TooLowRatingError,
     CannotParseRatingError,
-    InvalidStarRatingError
+    InvalidStarRatingError,
+    EmptyFootageDirectoryError
     )
-
 def get_footage_folders(directory:str | Path) -> list[str]:
     """Get the list of folders inside the root path in alphabetical order. 
-    Does not return absolute paths, only the folder names."""
-    return sorted(
+    Does not return absolute paths, only the folder names.
+    
+    Raises:
+        EmptyFootageDirectoryError if dir doesn't contain any subfolders (with the actual footage.)
+    """
+
+    folders = sorted(
         item for item in os.listdir(directory)
         if os.path.isdir(os.path.join(directory,item))
         )
+
+    if folders is None or folders == []:
+        raise EmptyFootageDirectoryError(dedent(
+            """
+            Your footage directory doesn't contain any directories! 
+            Pass as an argument the directory in which you've stored your gameplay footage and
+            place the actual footage under folders named after the games the footage is from.
+            """))
+
+    return folders
 
 
 def parse_release_year_from_folder_name(
@@ -276,6 +292,9 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
     omd = parse_obsidian_note(footage_folder_path, settings, obsidian_path)
     if omd is None:
         omd = {}
+        omd_note_found = False
+    else:
+        omd_note_found = True
 
     (game_name,
     dir_release_year,
@@ -309,19 +328,37 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
         "game_series" : omd.get(settings.OBSIDIAN_METADATA_MAP["game_series"], None),
         "developers" : omd.get(settings.OBSIDIAN_METADATA_MAP["developers"], []),
         "publishers" : omd.get(settings.OBSIDIAN_METADATA_MAP["publishers"], []),
-        "md_size" : omd.get("md_file_size", None)
+        "md_size" : omd.get("md_file_size", None),
+        "omd_found" : omd_note_found
     }
-
-
 
     return metadata, errors
 
 
-#def sort_footage_folder(
-# footage_folder_path:Path,
-# video_filetypes: list[str],
-# ignored_filetypes: list[str]) -> {list[Path], list[Path], list[Path]}:
-# """Recursively scans the footage folder and returns all of the files
-# inside of the folder sorted in to three groups: 
-# The video files, other files and ignored files."""
-#   return None
+def sort_footage_folder(
+    footage_folder_path: str |Path,
+    supported_video_filetypes: list[str],
+    ignored_filetypes: list[str]
+    ) -> {tuple(list[Path], list[Path])}:
+    """Recursively scans the footage folder and returns all of the files
+    inside of the folder sorted in to two groups: 
+    The video files and other files. Ignored files are discounted from the sorting"""
+
+    dir_path = Path(footage_folder_path)
+
+    v_exts = {"." + e.lower().lstrip(".") for e in supported_video_filetypes}
+    i_exts = {"." + e.lower().lstrip(".") for e in ignored_filetypes}
+    video_files: list[Path] = []
+    other_files: list[Path] = []
+
+    for p in sorted(dir_path.rglob("*")):
+        if not p.is_file():
+            continue
+        if p.suffix.lower() in i_exts:
+            continue
+        if p.suffix.lower() in v_exts:
+            video_files.append(p)
+        else:
+            other_files.append(p)
+
+    return video_files, other_files
