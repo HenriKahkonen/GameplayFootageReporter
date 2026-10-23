@@ -133,6 +133,25 @@ FOOTAGE_FOLDERNAME_CATEGORIES = {
 # Do you want to cross-reference the scanned folders to an Obsidian database
 # to try to find additional data on the games?
 SCAN_OBSIDIAN_DB = True
+
+# These are the metadata values the program tries to assign
+# when scanning the footage and notes folders.
+# The left hand values are hard-coded to the program,
+# and changing them will break things,
+# but you can change the right hand values to match your Obsidian note headers.
+OBSIDIAN_METADATA_MAPPING = {
+    "year": "year",
+    "platforms" : "Alusta(t)",
+    "categories" : "Kategoria(t)",
+    "genres" : "Genret",
+    "rating" : "Rating",
+    "playtime_hrs" : "Playtime_hrs",
+    "playtime_mins" : "Playtime_mins",
+    "game_series" : "Pelisarja",
+    "developers" : "Kehittäjä(t)",
+    "publishers" : "Julkaisija(t)",
+}
+
 # What headers to search for in Obsidian files' frontmatter and what are their datatypes?
 # Note that the values must match to their counterparts in OBSIDIAN_METADATA_MAPPING
 OBSIDIAN_HEADERS = {
@@ -150,22 +169,6 @@ OBSIDIAN_HEADERS = {
     "Julkaisija(t)" : [str],
 }
 
-# These are the metadata values the program tries to assign
-# when scanning the footage and notes folders.
-# Changing the left hand values will break the program,
-# but you can change the right hand values to match your Obsidian note headers.
-OBSIDIAN_METADATA_MAPPING = {
-    "year": "year",
-    "platforms" : "Alusta(t)",
-    "categories" : "Kategoria(t)",
-    "genres" : "Genret",
-    "rating" : "Rating",
-    "playtime_hrs" : "Playtime_hrs",
-    "playtime_mins" : "Playtime_mins",
-    "game_series" : "Pelisarja",
-    "developers" : "Kehittäjä(t)",
-    "publishers" : "Julkaisija(t)",
-}
 
 OBSIDIAN_RATING_MIN = 0
 OBSIDIAN_RATING_MAX = 5
