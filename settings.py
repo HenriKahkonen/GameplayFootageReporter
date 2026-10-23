@@ -1,12 +1,25 @@
-import dotenv, os
-from utils.errors import (
-    EnvReadError
-)
+"""
+Specify your operation variables in this file and in the '.env' file. Check the '.env.example' file for formatting guide, copy and rename the file and replace the paths with your own.
 
-# Specify your operation variables in this file and in the '.env' file. Check the '.env.example' file for formatting guide, copy and rename the file and replace the paths with your own.
+To specify a path or a custom name, use quotation marks
+To specify a boolean (= True / False) value, specify the value with an uppercase first letter
+
+Do you want to specify a specific folder where the output of the analysis is saved in
+If False, outputs to an /Output directory under this program
+If True, outputs to the directory specified in the .env file
+"""
+
+import os
+import dotenv
+
+
+# Specify your operation variables in this file and in the '.env' file. 
+# Check the '.env.example' file for formatting guide, copy and rename the file 
+# and replace the paths with your own.
 
 # To specify a path or a custom name, use quotation marks
-# To specify a boolean (= True / False) value, specify the value with an uppercase first letter
+# To specify a boolean (= True / False) value, specify the value with an 
+# uppercase first letter
 
 # Do you want to specify a specific folder where the output of the analysis is saved in
 # If False, outputs to an /Output directory under this program
@@ -15,18 +28,19 @@ OUTPUT_TO_CUSTOM_DIRECTORY = False
 # Do you want a .txt log of the operation
 LOG_OUTPUT = True
 
-# Do you want a comma-separated-value list (readable with e.g. Google Sheets and Microsoft Excel) of the operation?
+# Do you want a comma-separated-value list (readable with e.g. Google Sheets 
+# and Microsoft Excel) of the operation?
 CSV_OUTPUT = True # set to false if you don't want a csv report
 CSV_SEPARATOR = ";" # character to separate values in csv. Cannot be set to "," if CSV_FLOATS_WITH_COMMA is set to true.
 CSV_FLOATS_WITH_COMMA = True # if true floats are represented as 3,14 instead of 3.14
 
-
 # Do you want a Sqlite database of the video files?
-# Sqlite is a small, local database that holds all of the database data in a static file instead of a
-# complex database engine running on the machine
+# Sqlite is a small, local database that holds all of the database data in 
+# a static file instead of a complex database engine running on the machine
 SQLITE_OUTPUT = True
 
-# In which formats are your video files? Ffmpeg will try to parse video types listed here.
+# In which formats are your video files? Ffmpeg will try to parse video types 
+# listed here.
 SUPPORTED_VIDEO_FILETYPES = [
     ".mp4", ".mov", ".mkv", ".mpg", ".ts", ".ogg", ".avi"
 ]
@@ -41,7 +55,7 @@ IGNORED_FILETYPES = [
 #
 # /Footage/NES - Battletoads (1991)
 #
-# The set to following to true to above folder to resolve to 
+# The set to following to true to above folder to resolve to
 # {Gamename: "Battletoads", Year: "1991", Platform: "Nintendo Entertainment System"}
 # If the following are set to False, the same folder gets parsed to the database as
 # {Gamename: "NES - Battletoads (1991), Year: None, Platform: None"}
@@ -86,32 +100,38 @@ GAME_PLATFORMS = {
     "Web" : "Browser",
 }
 
-DEFAULT_PLATFORM = "PC" # If folder doesn't match any platform prefix, it will be treated if it had this platform. If the default platform doesnt match any of the keys in the platform map, it will be treaded as a custom defined platform name.
+# If folder doesn't match any platform prefix, it will be treated if it had 
+# this platform. If the default platform doesnt match any of the keys in the 
+# platform map, it will be treaded as a custom defined platform name.
 # DEFAULT_PLATFORM = "SNES" -> Games default platform will be "Super Nintendo Entertainment System"
 # DEFAULT_PLATFORM = "Tiger Handheld" -> Games default platform will be "Tiger Handheld"
-#
+DEFAULT_PLATFORM = "PC"
 
-
-FOLDERNAME_CUSTOM_CATEGORIES = True
 # Other custom categories for footage folders
 # If you want to group the footage into other custom non-platform categories such as
 #
-# / Doom (2016)                             
-# / Doom Mods - Ancient Aliens (2016)       
-# / Doom Mods - Ghostbusters Doom (2002)    
-# / DOS - Jazz Jackrabbit (1994)            
+# / Doom (2016)
+# / Doom Mods - Ancient Aliens (2016)
+# / Doom Mods - Ghostbusters Doom (2002)
+# / DOS - Jazz Jackrabbit (1994)
 #
-# If so, specify as a tuple what the cateory is and what the gaming platform of that category is
-# Only one prefix will be scanned from the folder name and custom categories are checked before checking game platform. 
-# If a custom category is found in the folder name, a platform is not checked from the folder name, instead it is defined here.
-# As with the default platform, you may define either a shorthand that maps to a full name in GAME_PLATFORMS or a custom platform name.
+# If so, specify as a tuple what the cateory is and what the gaming platform of
+# that category is
+# # Only one prefix will be scanned from the folder name and custom categories
+# are checked before checking game platform.
+# If a custom category is found in the folder name, a platform is not checked
+# from the folder name, instead it is defined here.
+# As with the default platform, you may define either a shorthand that maps
+# to a full name in GAME_PLATFORMS or a custom platform name.
 #
+FOLDERNAME_CUSTOM_CATEGORIES = True
 FOOTAGE_FOLDERNAME_CATEGORIES = {
     "Doom Mods" : ("Doom Mod","PC"),
     "Suomipelit": ("Suomipelit","PC")
 }
 
-# Do you want to cross-reference the scanned folders to an Obsidian database to try to find additional data on the games?
+# Do you want to cross-reference the scanned folders to an Obsidian database
+# to try to find additional data on the games?
 SCAN_OBSIDIAN_DB = True
 # What headers to search for in Obsidian files' frontmatter and what are their datatypes?
 # Note that the values must match to their counterparts in OBSIDIAN_METADATA_MAPPING
@@ -130,7 +150,10 @@ OBSIDIAN_HEADERS = {
     "Julkaisija(t)" : [str],
 }
 
-# These are the metadata values the program tries to assign when scanning the footage and notes folders. Changing the left hand values will break the program, but you can change the right hand values to match your Obsidian note headers.
+# These are the metadata values the program tries to assign
+# when scanning the footage and notes folders.
+# Changing the left hand values will break the program,
+# but you can change the right hand values to match your Obsidian note headers.
 OBSIDIAN_METADATA_MAPPING = {
     "year": "year",
     "platforms" : "Alusta(t)",
@@ -146,11 +169,10 @@ OBSIDIAN_METADATA_MAPPING = {
 
 OBSIDIAN_RATING_MIN = 0
 OBSIDIAN_RATING_MAX = 5
-OBSIDIAN_RATING_USE_STAR_SYSTEM = True # Makes non-half step ratings invalid, 4,7 not allowed
+OBSIDIAN_RATING_USE_STAR_SYSTEM = True # Makes non-half step ratings invalid, e.g. 4,7 not allowed
 
 # Load env variables and throw errors if appropriate
-env_vars = dotenv.load_dotenv()
+dotenv.load_dotenv()
 GAMEPLAY_FOOTAGE_PATH=os.getenv("GAMEPLAY_FOOTAGE_PATH",None)
 OBSIDIAN_DB_PATH=os.getenv("OBSIDIAN_DB_PATH",None)
 CUSTOM_OUTPUT_PATH=os.getenv("CUSTOM_OUTPUT_PATH",None)
-

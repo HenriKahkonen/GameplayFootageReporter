@@ -12,8 +12,6 @@ from copy import deepcopy
 from typing import Any, Optional
 from pathlib import Path
 
-import dotenv
-
 import settings
 from utils.errors import MalformedSettingsError, EnvReadError
 
@@ -73,8 +71,6 @@ class Settings:
             self.OBSIDIAN_RATING_MIN : int = settings.OBSIDIAN_RATING_MIN
             self.OBSIDIAN_RATING_MAX : int = settings.OBSIDIAN_RATING_MAX
             self.OBSIDIAN_RATING_USE_STAR_SYSTEM : bool = settings.OBSIDIAN_RATING_USE_STAR_SYSTEM
-
-            dotenv.load_dotenv()
 
             # --- Loaded from .env (allowed to be None) ---
             self.GAMEPLAY_FOOTAGE_PATH: Optional[str] = settings.GAMEPLAY_FOOTAGE_PATH
