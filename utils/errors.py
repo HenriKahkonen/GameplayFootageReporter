@@ -55,3 +55,10 @@ class InvalidStarRatingError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
+class EmptyFootageDirectoryError(Exception):
+    """Exception thrown when the user submitted rating is over the defined max limit."""
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
