@@ -67,6 +67,7 @@ RELEASE_YEAR_IN_FOLDERNAME = True
 # Specify as "shorthand_as_in_the_folder_name" : "The full name of the platform"
 GAME_PLATFORMS = {
     "00" : "Not a game",
+    "01" : "Platform unknown",
     "Arcade" : "Pelihallipelit",
     "Atari 2600" : "Atari 2600",
     "CDi" : "Philips CD-i",
@@ -126,8 +127,9 @@ DEFAULT_PLATFORM = "PC"
 #
 FOLDERNAME_CUSTOM_CATEGORIES = True
 FOOTAGE_FOLDERNAME_CATEGORIES = {
-    "Doom Mods" : ("Doom Mod","PC"),
-    "Suomipelit": ("Suomipelit","PC")
+    "Doom Mods" : ("Doom Mod","01"),
+    "Suomipelit": ("Suomipelit","01"),
+    "AI Slop": ("AI Slop","01"),
 }
 
 # Do you want to cross-reference the scanned folders to an Obsidian database
