@@ -166,8 +166,7 @@ def parse_full_folder_name_data(
         str: Game platform, platform returned as list
         str: Game category, category returned as list
 
-    Raises:
-        FileNotFoundError: if obsidian_path doesn't exist."""
+        """
 
     dir_name = Path(folder_name).name
 
