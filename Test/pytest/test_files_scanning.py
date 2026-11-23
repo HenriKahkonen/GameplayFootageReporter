@@ -200,12 +200,10 @@ def test_rating_validation_errors(settings):
 
 def test_metadata_gamename(settings, footage_dir):
 
-    game = footage_dir / "N64 - Game 5 (1999)"
-    metadata, scan_errors = get_game_metadata(game, settings)
+    game = footage_dir / "N64 - Game 4 (1999)"
+    metadata = get_game_metadata(game, settings)[0]
 
-    assert metadata["game_name"] == "Game 5"
-    assert not scan_errors
-
+    assert metadata["game_name"] == "Game 4"
 
 def test_full_metadata_fetch_from_md_file(settings, footage_dir):
 
@@ -237,8 +235,10 @@ def test_full_metadata_no_markdown_file(settings, footage_dir):
     assert metadata["developers"] == []
     assert metadata["publishers"] == []
     assert metadata["md_size"] is None
-    assert not scan_errors
     assert isinstance(metadata["developers"], list)
+
+    assert isinstance(scan_errors[0],errors.ObsidianNoteNotFoundWarning)
+
 
 def test_metadata_returns_list_values_instead_of_none(settings,test_game_paths):
     """Test that the platforms, genres, developers, categories and platforms return list types regardless of condtitions"""
@@ -275,7 +275,6 @@ def test_misspelled_platform_folder_name(settings, footage_dir):
     metadata, scan_errors = get_game_metadata(footage_folder, settings)
 
     assert metadata["game_name"] == "PSZ - Game 7"
-    assert not scan_errors
 
 def test_get_gamename_from_folder(settings, footage_dir):
 
@@ -283,16 +282,15 @@ def test_get_gamename_from_folder(settings, footage_dir):
     settings.PLATFORM_IN_FOLDERNAME = True
 
     footage_folder = footage_dir / "N64 - Game 4 (1999)"
-    metadata, scan_errors = get_game_metadata(footage_folder, settings)
+    metadata = get_game_metadata(footage_folder, settings)[0]
 
     assert metadata["game_name"] == "Game 4"
 
     footage_folder = footage_dir / "PS2 - Game 8 (2002)"
-    metadata, scan_errors = get_game_metadata(footage_folder, settings)
+    metadata = get_game_metadata(footage_folder, settings)[0]
 
     assert metadata["game_name"] == "Game 8"
 
-    assert not scan_errors
 
 def test_obsidian_md_file_too_many_minutes_warning(settings,footage_dir):
 
@@ -312,6 +310,6 @@ def test_obsidian_invalid_playtime_error_dirname(footage_dir, settings):
 
     assert g1_metadata["playtime_mins"] == 317 # 4*60 + 77
     assert isinstance(scan_errors[0], errors.TooManyMinutesWarning)
-    
+
     e = scan_errors[0]
     assert e.dir_name == "Game 2 (2002)"

@@ -13,7 +13,8 @@ from utils.errors import (
     CannotParseRatingError,
     InvalidStarRatingError,
     EmptyFootageDirectoryError,
-    TooManyMinutesWarning
+    TooManyMinutesWarning,
+    ObsidianNoteNotFoundWarning,
     )
 def get_footage_folders(directory:str | Path) -> list[str]:
     """Get the list of folders inside the root path in alphabetical order. 
@@ -367,6 +368,11 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
         "md_size" : omd.get("md_file_size", None),
         "omd_found" : omd_note_found
     }
+
+    if settings.SCAN_OBSIDIAN_DB and not metadata["omd_found"]:
+        errors.append(ObsidianNoteNotFoundWarning(
+            dir_name=footage_folder_path,
+            message=f"No Obsidian Note Match found for {Path(footage_folder_path).name}"))
 
     return metadata, errors
 
