@@ -23,6 +23,7 @@ from utils.settings_loader import Settings
 from utils.parse_script_arguments import parse_args
 from utils.logger import FootageAnalysisLogger
 from utils.csvwriter import FootageReportCSVWriter as CSVWriter
+from utils.sqlite_db import GameplayFootageDatabase as FootageDB
 from utils.errors import EmptyFootageDirectoryError
 from utils.game_footage_data_classes import (
     create_game_footage_summary,
@@ -125,6 +126,15 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
         dummy_logger = not settings.CSV_OUTPUT
     )
 
+    db = FootageDB(
+        db_path=settings.OUTPUT_PATH / "footage.db",
+        dummy=not settings.SQLITE_OUTPUT
+    )
+
+    ##################
+    # Initial checks #
+    ##################
+
     logger.begin_logging_session()
 
     logger.log("Generating report from gameplay footage and note directories...\n")
@@ -158,7 +168,7 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
             settings.SUPPORTED_VIDEO_FILETYPES,
             settings.IGNORED_FILETYPES)
 
-        footage_clips, errors = analyze_clips(footage_files)
+        footage_clips, errors = analyze_clips(footage_files, settings)
 
         for e in errors:
             logger.log_nonfatal_error(e,footage_folder=footage_folder_name)
@@ -189,15 +199,19 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
 
         csv_writer.add_game_summary(game_summary)
 
-        # if sqlite save to sqlite
+        db.upsert_game(game_summary)
+        db.replace_footage_files(footage_clips)
 
     ######################################
     # All rows processed, finalize writes
     ######################################
 
     csv_writer.write_csv()
+    db.create_report()
 
-    return 1
+    logger.end_logging_session()
+
+    return 0
 
 if __name__ == "__main__":
     gameplay_footage_report_generator(sys.argv)
