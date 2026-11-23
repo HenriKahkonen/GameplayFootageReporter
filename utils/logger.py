@@ -99,7 +99,7 @@ class FootageAnalysisLogger:
             return {}
 
         total_video_files = sum(g.video_files for g in self.games)
-        total_non_video_files = sum(g.non_video_files for g in self.games),
+        total_non_video_files = sum(g.non_video_files for g in self.games)
         total_length_secs = sum(g.total_video_length_secs for g in self.games)
         total_size_mb = sum(g.total_video_size_in_mb for g in self.games)
         total_minutes = total_length_secs / 60
