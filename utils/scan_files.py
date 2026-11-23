@@ -192,11 +192,16 @@ def parse_full_folder_name_data(
 
 
 def calculate_playtime_from_obsidian_note(
+        footage_dir_name: str,
         obsidian_data_dict: dict,
         settings: Settings
         ) -> tuple[int | None, Exception | None]:
     """
     Reads and calculates playtime from parsed obsidian note dictionary.
+    Args:
+        footage_dir_name: str = The name of the footage folder (for error logging)
+        obsidian_data_dict: dict = The parsed dictionary of the obsidian markdown note
+        settings: Settings = the settings object
     Returns:
         pt_mins: int | None. The total playtime as minutes or
             None if time is not set or time in minutes if it can be parsed.
@@ -223,11 +228,17 @@ def calculate_playtime_from_obsidian_note(
         errors.append(ValueError(f"Could not parse playtime minutes ({pt_mins!r})"))
 
     if mins >= 60:
-        errors.append(TooManyMinutesWarning(f"Obsidian note has more than 60 minutes in its playtime ({mins})."))
+        errors.append(TooManyMinutesWarning(
+            dir_name=footage_dir_name,
+            message=f"Obsidian note for {footage_dir_name} has more than 60 minutes in its playtime ({mins})."))
 
     return (hours * 60) + mins, errors if errors else []
 
-def validate_rating(rating: str | int | float | None, settings: Settings) -> float | None:
+def validate_rating(
+    footage_dir_name: str,
+    rating: str | int | float | None, 
+    settings: Settings) -> float | None:
+
     """Validates the rating and outputs the rating or throws errors if rating is invalid.
     
     Raises:
@@ -248,20 +259,28 @@ def validate_rating(rating: str | int | float | None, settings: Settings) -> flo
     try:
         rating_standardized = round(float(rating),1)
     except (ValueError ,TypeError) as exc:
-        raise CannotParseRatingError(f"Cannot parse rating {rating}") from exc
+        raise CannotParseRatingError(
+            dir_name = footage_dir_name,
+            message=f"Cannot parse rating {rating}") from exc
 
     min_rating : int = settings.OBSIDIAN_RATING_MIN
     max_rating : int = settings.OBSIDIAN_RATING_MAX
 
     if rating_standardized > max_rating:
-        raise TooHighRatingError(f"Rating {rating} is too high! (Max={max_rating})")
+        raise TooHighRatingError(
+            dir_name=footage_dir_name,
+            message=f"Rating {rating} is too high! (Max={max_rating})")
     if rating_standardized < min_rating:
-        raise TooLowRatingError(f"Rating {rating} is too low! (Min = {min_rating})")
+        raise TooLowRatingError(
+            dir_name=footage_dir_name,
+            message=f"Rating {rating} is too low! (Min = {min_rating})")
 
     if settings.OBSIDIAN_RATING_USE_STAR_SYSTEM: # if true, only accept increments of 0.5
         doubled = rating_standardized * 2
         if not doubled.is_integer():
-            raise InvalidStarRatingError(f"Rating {rating} is not a valid star system rating (increment of 0.5)!")
+            raise InvalidStarRatingError(
+                dir_name=footage_dir_name,
+                message=f"Rating {rating} is not a valid star system rating (increment of 0.5)!")
 
     return rating_standardized
 
@@ -313,12 +332,12 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
     dir_category) = parse_full_folder_name_data(footage_folder_path, settings)
 
     try:
-        game_rating = validate_rating(omd.get(settings.OBSIDIAN_METADATA_MAP["rating"]), settings)
+        game_rating = validate_rating(footage_folder_path, omd.get(settings.OBSIDIAN_METADATA_MAP["rating"]), settings)
     except (CannotParseRatingError, TooHighRatingError, TooLowRatingError, InvalidStarRatingError) as e:
         errors.append(e)
         game_rating = None
 
-    pt_minutes, pt_errors = calculate_playtime_from_obsidian_note(omd, settings)
+    pt_minutes, pt_errors = calculate_playtime_from_obsidian_note(footage_folder_path, omd, settings)
 
     if pt_errors:
         for e in pt_errors:
