@@ -35,7 +35,7 @@ def test_csv_report_creates_succesfully(settings):
             settings.SUPPORTED_VIDEO_FILETYPES,
             settings.IGNORED_FILETYPES)
 
-        footage_clips = analyze_clips(footage_files)[0]
+        footage_clips = analyze_clips(footage_files,settings)[0]
 
         ftg_summary = create_game_footage_summary(
             game_name=game_metadata["game_name"],

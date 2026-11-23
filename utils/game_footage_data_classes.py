@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, fields
 from typing import ClassVar
+from pathlib import Path
 
 @dataclass
 class GameFootageSummary:
@@ -80,6 +81,7 @@ class GameSummary(GameFootageSummary):
 class FootageVideoFile:
     """A data class for a single footage video"""
     file_name : str
+    game_name : str
     video_length_in_seconds : int
     file_size_in_mb : float
     file_extension : str

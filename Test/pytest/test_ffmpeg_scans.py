@@ -48,7 +48,7 @@ def test_video_probe_returns_right_class(test_game_paths, settings):
             )
 
         footages = sort[0]
-        result = probe_video_file(footages[0])
+        result = probe_video_file(footages[0], settings)
 
         assert isinstance(result, FootageVideoFile)
 
@@ -63,7 +63,7 @@ def test_video_sort_finds_nested_directories(test_game_paths, settings):
     assert len(footages) == 2
     assert len(others) == 2
 
-def test_video_duration_probe(footage_dir, settings):
+def test_video_duration_probe(footage_dir):
     clip_1 = footage_dir / "Game 1" / "game1.mp4"
     clip_2 = footage_dir / "Game 3 (1997)" / "game3.MOV"
 
@@ -77,7 +77,7 @@ def test_analyze_clips(footage_dir, settings):
         settings.SUPPORTED_VIDEO_FILETYPES,
         settings.IGNORED_FILETYPES)
 
-    ftg_file_objects, errors = analyze_clips(clips[0])
+    ftg_file_objects, errors = analyze_clips(clips[0], settings)
 
     assert len(ftg_file_objects) == 3
     assert not errors
@@ -89,7 +89,7 @@ def test_analyze_clips_details(footage_dir, settings):
         settings.SUPPORTED_VIDEO_FILETYPES,
         settings.IGNORED_FILETYPES)
 
-    ftg_file_objects, errors = analyze_clips(clips)
+    ftg_file_objects, errors = analyze_clips(clips, settings)
     v = ftg_file_objects[0]
 
     assert not errors
@@ -111,7 +111,7 @@ def test_game_footage_summary(footage_dir, settings):
         settings.IGNORED_FILETYPES)
 
 
-    ftg_objects, errors = analyze_clips(clips)
+    ftg_objects, errors = analyze_clips(clips, settings)
 
     ftg_summary = create_game_footage_summary(
         game_name = metadata["game_name"],
@@ -142,7 +142,7 @@ def test_game_full_summary(footage_dir, settings):
         [".avi"],
         settings.IGNORED_FILETYPES)
 
-    ftg_objects, errors = analyze_clips(clips)
+    ftg_objects, errors = analyze_clips(clips, settings)
 
     ftg_summary = create_game_footage_summary(
         game_name = game_metadata["game_name"],
