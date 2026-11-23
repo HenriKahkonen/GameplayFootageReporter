@@ -157,45 +157,45 @@ def test_full_folder_metadata_scans_undefined_custom_category(settings):
 
 def test_rating_validation(settings):
 
-    assert validate_rating("1", settings) == 1.0
-    assert validate_rating("2", settings) == 2
+    assert validate_rating("testfolder", "1", settings) == 1.0
+    assert validate_rating("testfolder", "2", settings) == 2
 
-    assert validate_rating(3, settings) == 3
-    assert validate_rating(3.5, settings) == 3.5
-    assert validate_rating("4,5", settings) == 4.5
+    assert validate_rating("testfolder", 3, settings) == 3
+    assert validate_rating("testfolder", 3.5, settings) == 3.5
+    assert validate_rating("testfolder", "4,5", settings) == 4.5
 
 def test_rating_validation_comma_decimals(settings):
 
-    assert validate_rating("4,5", settings) == 4.5
+    assert validate_rating("testfolder", "4,5", settings) == 4.5
 
-    assert validate_rating("4,",settings) == 4
+    assert validate_rating("testfolder", "4,",settings) == 4
 
-    assert validate_rating("3,0",settings) == 3
-    assert validate_rating("3,0",settings) == 3.0
+    assert validate_rating("testfolder", "3,0",settings) == 3
+    assert validate_rating("testfolder", "3,0",settings) == 3.0
 
 
 def test_rating_validation_errors(settings):
 
     with pytest.raises(errors.CannotParseRatingError):
-        assert validate_rating("1,5,5", settings)
+        assert validate_rating("testfolder", "1,5,5", settings)
 
     with pytest.raises(errors.TooHighRatingError):
-        assert validate_rating(6, settings)
+        assert validate_rating("testfolder", 6, settings)
 
     with pytest.raises(errors.TooLowRatingError):
-        assert validate_rating(-1, settings)
+        assert validate_rating("testfolder", -1, settings)
 
     settings.OBSIDIAN_RATING_USE_STAR_SYSTEM = False
 
-    assert validate_rating(4.3, settings) == 4.3
+    assert validate_rating("testfolder", 4.3, settings) == 4.3
 
     settings.OBSIDIAN_RATING_USE_STAR_SYSTEM = True
 
     with pytest.raises(errors.InvalidStarRatingError):
-        assert validate_rating(4.3, settings)
+        assert validate_rating("testfolder", 4.3, settings)
 
     with pytest.raises(errors.InvalidStarRatingError):
-        assert validate_rating("4,3", settings)
+        assert validate_rating("testfolder", "4,3", settings)
 
 
 def test_metadata_gamename(settings, footage_dir):
@@ -304,3 +304,14 @@ def test_obsidian_md_file_too_many_minutes_warning(settings,footage_dir):
     assert metadata["omd_found"] is True
     assert len(scan_errors) == 1
     assert isinstance(scan_errors[0],errors.TooManyMinutesWarning)
+
+def test_obsidian_invalid_playtime_error_dirname(footage_dir, settings):
+
+    game_path = Path(footage_dir / "Game 2 (2002)")
+    g1_metadata, scan_errors = get_game_metadata(game_path, settings)
+
+    assert g1_metadata["playtime_mins"] == 317 # 4*60 + 77
+    assert isinstance(scan_errors[0], errors.TooManyMinutesWarning)
+    
+    e = scan_errors[0]
+    assert e.dir_name == "Game 2 (2002)"
