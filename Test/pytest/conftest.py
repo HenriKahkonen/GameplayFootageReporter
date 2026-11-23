@@ -25,7 +25,8 @@ SHA256_BASELINE_PATH = TESTDATA_DIR / "sha256validation.json"
 
 FOOTAGE_DIRNAME = "Gameplay-Footage"
 NOTES_DIRNAME = "Obsidian-Notes"
-TEST_FILE_DIRS = (FOOTAGE_DIRNAME, NOTES_DIRNAME)
+OUTPUT_DIRNAME = "Test-Output"
+TEST_FILE_DIRS = (FOOTAGE_DIRNAME, NOTES_DIRNAME, OUTPUT_DIRNAME)
 
 # --- Default settings used by the tests --------------------------------------
 TEST_GAME_PLATFORMS = {
@@ -233,6 +234,9 @@ def settings(footage_dir, notes_dir) -> Settings:
 
     s.FOLDERNAME_CUSTOM_CATEGORIES = True
     s.FOOTAGE_FOLDERNAME_CATEGORIES = TEST_FOOTAGE_CATEGORIES
+
+    s.OUTPUT_TO_CUSTOM_DIRECTORY = True
+    s.CUSTOM_OUTPUT_PATH = Path(REPO_ROOT / "Test" / "Testdata" / "Test-Output")
 
     s.validate()
 

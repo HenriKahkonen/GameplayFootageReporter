@@ -1,6 +1,7 @@
 """Module for the game footage file and game summary classes"""
 
 from dataclasses import dataclass, fields
+from typing import ClassVar
 
 @dataclass
 class GameFootageSummary:
@@ -28,7 +29,40 @@ class GameSummary(GameFootageSummary):
     developers : list[str]
     publishers : list[str]
     md_size : float | None
-    omd_found : bool = False
+
+    # The more legible, preferred order of the dictionary after all of the fields have been inherited
+    COLUMN_ORDER: ClassVar[tuple[str, ...]] = (
+        "game_name",
+        "release_year",
+        "total_video_size_in_mb",
+        "total_video_length_secs",
+        "video_avg_length_secs",
+        "video_avg_size_per_min_in_mb",
+        "file_ext_list",
+        "video_files",
+        "non_video_files",
+        "obsidian_note_found",
+        "md_size",
+        "platforms",
+        "categories",
+        "genres",
+        "rating",
+        "playtime_mins",
+        "game_series",
+        "developers",
+        "publishers",
+    )
+
+    def __post_init__(self):
+        # Round every float field (inherited ones included) to 2 decimals
+        for f in fields(self):
+            value = getattr(self, f.name)
+            if isinstance(value, float):
+                setattr(self, f.name, round(value, 2))
+
+    def to_dict(self) -> dict:
+        """Return the summary as a dict in COLUMN_ORDER."""
+        return {name: getattr(self, name) for name in self.COLUMN_ORDER}
 
     @classmethod
     def from_footage_summary(
@@ -40,7 +74,7 @@ class GameSummary(GameFootageSummary):
         plus the extra fields."""
 
         base_values = {f.name: getattr(ftg_summary, f.name) for f in fields(GameFootageSummary)}
-        return cls(**base_values, **extra_fields)        
+        return cls(**base_values, **extra_fields)
 
 @dataclass
 class FootageVideoFile:

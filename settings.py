@@ -1,5 +1,8 @@
 """
-Specify your operation variables in this file and in the '.env' file. Check the '.env.example' file for formatting guide, copy and rename the file and replace the paths with your own.
+Read through this file and replace the variables to your desired settings.
+
+Specify your operation variables in this file and in the '.env' file.
+Check the '.env.example' file for formatting guide, copy and rename the file and replace the paths with your own.
 
 To specify a path or a custom name, use quotation marks
 To specify a boolean (= True / False) value, specify the value with an uppercase first letter
@@ -33,6 +36,7 @@ LOG_OUTPUT = True
 CSV_OUTPUT = True # set to false if you don't want a csv report
 CSV_SEPARATOR = ";" # character to separate values in csv. Cannot be set to "," if CSV_FLOATS_WITH_COMMA is set to true.
 CSV_FLOATS_WITH_COMMA = True # if true floats are represented as 3,14 instead of 3.14
+CSV_LIST_SEPARATOR = "|" # character to separate values inside a list in the csv. For example [PS2,PC,XBOX] -> "PS2|PC|XBOX"
 
 # Do you want a Sqlite database of the video files?
 # Sqlite is a small, local database that holds all of the database data in 

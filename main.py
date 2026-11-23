@@ -22,6 +22,7 @@ from utils.ffmpeg_scanning import analyze_clips
 from utils.settings_loader import Settings
 from utils.parse_script_arguments import parse_args
 from utils.logger import FootageAnalysisLogger
+from utils.csvwriter import FootageReportCSVWriter as CSVWriter
 from utils.errors import EmptyFootageDirectoryError
 from utils.game_footage_data_classes import (
     create_game_footage_summary,
@@ -39,6 +40,10 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
         Params:
             argv: System arguments
     """
+
+    ##########################################################
+    # Parse script arguments and select appropriate operation 
+    ##########################################################
 
     args = parse_args(argv)
 
@@ -62,7 +67,9 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
         print("Test data cleared.")
         return 0
 
+    ###############################
     # Validate paths and arguments
+    ###############################
 
     settings = Settings()
 
@@ -99,12 +106,24 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
         sysargv = argv
     )
 
+    ############################
+    # Initialize writer objects
+    ############################
+
     logger = FootageAnalysisLogger(
         log_dir = settings.OUTPUT_PATH,
         file_name = "log.txt",
         dummy_logger = not settings.LOG_OUTPUT
     )
 
+    csv_writer = CSVWriter(
+        csv_dir = settings.OUTPUT_PATH,
+        file_name = "footage_report.csv",
+        csv_separator = settings.CSV_SEPARATOR, # default ";"
+        csv_floats_with_comma = settings.CSV_FLOATS_WITH_COMMA,
+        csv_list_separator = settings.CSV_LIST_SEPARATOR, # default "|"
+        dummy_logger = not settings.CSV_OUTPUT
+    )
 
     logger.begin_logging_session()
 
@@ -121,17 +140,18 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
         return 1
 
     logger.log(f"Found {len(game_list_raw)} game footage folders.\n")
+    logger.log(">"*50)
+
+    ####################################################################
+    # Scan footage folder and cross-reference to Obsidian note database
+    ####################################################################
 
     for footage_folder_name in game_list_raw:
 
         game_footage_path = Path(settings.GAMEPLAY_FOOTAGE_PATH / footage_folder_name)
-
         game_metadata, errors = get_game_metadata(game_footage_path, settings)
-
         for e in errors:
             logger.log_nonfatal_error(e,footage_folder=footage_folder_name)
-
-        print(game_metadata)
 
         footage_files, other_files = sort_footage_folder(
             game_footage_path,
@@ -167,17 +187,15 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
             md_size=game_metadata["md_size"],
         )
 
-        #print(game_summary)
+        csv_writer.add_game_summary(game_summary)
 
-        # if csv print print to csv
         # if sqlite save to sqlite
 
-        
+    ######################################
+    # All rows processed, finalize writes
+    ######################################
 
-        return 1
-
-
-    # TODO: go from there
+    csv_writer.write_csv()
 
     return 1
 

@@ -44,6 +44,7 @@ class Settings:
             self.CSV_OUTPUT: bool = settings.CSV_OUTPUT
             self.CSV_SEPARATOR: str = settings.CSV_SEPARATOR
             self.CSV_FLOATS_WITH_COMMA: bool = settings.CSV_FLOATS_WITH_COMMA
+            self.CSV_LIST_SEPARATOR: str = settings.CSV_LIST_SEPARATOR
 
             self.SQLITE_OUTPUT: bool = settings.SQLITE_OUTPUT
 
