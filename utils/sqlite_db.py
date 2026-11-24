@@ -24,7 +24,7 @@ class Game(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     game_name: Mapped[str] = mapped_column(unique=True)
 
-    release_year: Mapped[int]
+    release_year: Mapped[int | None]
     total_video_size_in_mb: Mapped[float]
     total_video_length_secs: Mapped[int]
     video_avg_length_secs: Mapped[float]
