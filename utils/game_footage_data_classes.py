@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, fields
 from typing import ClassVar
-from pathlib import Path
+#from pathlib import Path
 
 @dataclass
 class GameFootageSummary:
@@ -20,7 +20,7 @@ class GameFootageSummary:
 @dataclass
 class GameSummary(GameFootageSummary):
     """A collection of all of the data gathered from the game"""
-    release_year : int
+    release_year : int | None
     platforms : list[str]
     categories : list[str]
     genres : list[str]
@@ -30,6 +30,7 @@ class GameSummary(GameFootageSummary):
     developers : list[str]
     publishers : list[str]
     md_size : float | None
+    play_status : str | None
 
     # The more legible, preferred order of the dictionary after all of the fields have been inherited
     COLUMN_ORDER: ClassVar[tuple[str, ...]] = (
@@ -48,6 +49,7 @@ class GameSummary(GameFootageSummary):
         "categories",
         "genres",
         "rating",
+        "play_status",
         "playtime_mins",
         "game_series",
         "developers",
