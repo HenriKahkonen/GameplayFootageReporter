@@ -167,7 +167,7 @@ class FootageAnalysisLogger:
             (
                 f"Found {totals.get("video_files",0)} video clips and {totals.get("non_video_files",0)} other files. "
                 f"A total of {ftg_hours} hours, {ftg_mins} minutes and {ftg_secs} seconds of footage was found, "
-                f"collectively {totals.get("total_video_size_megabytes"),0} Mbs of video footage."
+                f"collectively {totals.get("total_video_size_megabytes",0)} Mbs of video footage."
             ),
 
             f"Found the following non-ignored filetypes: {totals.get("file_extensions",[])}",

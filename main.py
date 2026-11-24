@@ -74,6 +74,7 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
 
     settings = Settings()
 
+    """
     # TODO: remove test paths
     settings.GAMEPLAY_FOOTAGE_PATH = (
         "/mnt/data/repos/GameplayFootageReporter/Test/Testdata/Gameplay-Footage"
@@ -82,7 +83,8 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
         "/mnt/data/repos/GameplayFootageReporter/Test/Testdata/Obsidian-Notes"
         )
     settings.OUTPUT_TO_CUSTOM_DIRECTORY = False
-
+    """
+    
     footage_path_candidate = args.footage_path or settings.GAMEPLAY_FOOTAGE_PATH
     obsidian_path_candidate = args.obsidian_path or settings.OBSIDIAN_DB_PATH
     output_path_candidate = args.output_to or settings.CUSTOM_OUTPUT_PATH
