@@ -4,25 +4,13 @@ Read through this file and replace the variables to your desired settings.
 Specify your operation variables in this file and in the '.env' file.
 Check the '.env.example' file for formatting guide, copy and rename the file and replace the paths with your own.
 
-To specify a path or a custom name, use quotation marks
+To specify a custom name, use quotation marks
 To specify a boolean (= True / False) value, specify the value with an uppercase first letter
-
-Do you want to specify a specific folder where the output of the analysis is saved in
-If False, outputs to an /Output directory under this program
-If True, outputs to the directory specified in the .env file
+Note that when defining the paths in the .env file, quotation marks shouldn't be used to enclose the custom paths
 """
 
 import os
 import dotenv
-
-
-# Specify your operation variables in this file and in the '.env' file. 
-# Check the '.env.example' file for formatting guide, copy and rename the file 
-# and replace the paths with your own.
-
-# To specify a path or a custom name, use quotation marks
-# To specify a boolean (= True / False) value, specify the value with an 
-# uppercase first letter
 
 # Do you want to specify a specific folder where the output of the analysis is saved in
 # If False, outputs to an /Output directory under this program
@@ -59,7 +47,7 @@ IGNORED_FILETYPES = [
 #
 # /Footage/NES - Battletoads (1991)
 #
-# The set to following to true to above folder to resolve to
+# Then set the following to true. Then above folder name will resolve to
 # {Gamename: "Battletoads", Year: "1991", Platform: "Nintendo Entertainment System"}
 # If the following are set to False, the same folder gets parsed to the database as
 # {Gamename: "NES - Battletoads (1991), Year: None, Platform: None"}
