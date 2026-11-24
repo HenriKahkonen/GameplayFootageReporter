@@ -122,6 +122,12 @@ This reads through your footage directories and outputs a .csv file, an SQLite d
 
 ### Initializing the Obsidian markdown database
 
-WIP: not implemented yet
+If you have the footage folders but no Obsidian markdown notes, you can use this app to initialize notes based on the found footage directories. After OBSIDIAN_DB_PATH and GAMEPLAY_FOOTAGE_PATH have been set to the desired, existing directories, run:
+
+> python main.py --initialize-obsidian
+
+This reads through the directory names (i.e. the game footage folder names) inside the gameplay footage directory and creates matching md notes to the OBSIDIAN_DB_PATH directory. The initialization prepopulates the note files based on the category, platform and year parsing rules defined in settings.py.
+
+After the database has been initialized, you can easily start writing interlinked notes on the games using the [Obsidian notetaking app](https://obsidian.md/download).
 
 

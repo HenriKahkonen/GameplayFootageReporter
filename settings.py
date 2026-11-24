@@ -162,6 +162,7 @@ OBSIDIAN_HEADERS = {
     "Pelisarja" : str,
     "Kehittäjä(t)" : [str],
     "Julkaisija(t)" : [str],
+    "aliases" : [str],
 }
 
 

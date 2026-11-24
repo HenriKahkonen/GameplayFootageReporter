@@ -192,3 +192,68 @@ def parse_obsidian_note(
     result["md_file_size"] = md_file_size
 
     return result
+
+def _to_wikilink(name: str | None) -> str | None:
+    """'MS-DOS' -> '"[[MS-DOS]]"'. Quoted so YAML doesn't read [[...]] as a nested list."""
+    return f'"[[{name}]]"' if name else None
+
+def create_obsidian_note(
+    folder_name: str,
+    settings: Settings,
+    release_year: int | None,
+    category_fullname: str | None,
+    platform_fullname: str | None,
+) -> bool:
+    """Create a obsidian note from the directory data named {folder_name.md}, creating a template from values defined in settings.OBSIDIAN_HEADERS. Creates the note under the path defined in settings.OBSIDIAN_DB_PATH.
+     
+    Input release year is passed on as such. Category and platform are wrapped in [[wikilinks]].
+    
+    Params:
+        folder_name: str. The full folder name of the footage dir (note.md must match fully)
+        settings: Settings object passing values inside settings.py
+        release_year: int | None. Parsed from directory name using utils.scan_files.parse_full_folder_name_data before passing to this func.
+        category: str | None. Parsed from directory name using utils.scan_files.parse_full_folder_name_data before passing to this func.
+        platform: str | None. Parsed from directory name using utils.scan_files.parse_full_folder_name_data before passing to this func.
+        
+    Returns:
+        True : if file was succesfully created
+        False : if file wasn't created
+        
+    Raises:
+        Exception : unknown exception. Shouldn't raise permissionerrors or filenotfounderrors due to the obsidian db path being checked as valid in a previous step.
+        """
+    note_path = Path(settings.OBSIDIAN_DB_PATH) / f"{folder_name}.md"
+
+    platform_link = _to_wikilink(platform_fullname)
+    category_link = _to_wikilink(category_fullname)
+
+    # Pre-filled values. Every other header is left empty.
+    values: dict[str, object] = {
+        "year": release_year,
+        "tags": ["Peli"],
+        "Alusta(t)": [platform_link] if platform_link else [],
+        "Kategoria(t)": [category_link] if category_link else [],
+    }
+
+    lines = ["---"]
+    for key, dtype in settings.OBSIDIAN_HEADERS.items():
+        value = values.get(key)
+
+        if isinstance(dtype, list):  # list-type header, e.g. [str]
+            lines.append(f"{key}:")
+            if value:
+                lines.extend(f"  - {item}" for item in value)
+            else:
+                lines.append("  -")
+        else:
+            lines.append(f"{key}:" if value is None else f"{key}: {value}")
+    lines += ["---", "# Notes", ""]
+
+    try:
+        # Mode "x" fails instead of overwriting, so existing notes are safe
+        with open(note_path, "x", encoding="utf-8", newline="\n") as f:
+            f.write("\n".join(lines))
+    except FileExistsError:
+        return False
+
+    return True

@@ -7,13 +7,16 @@ as well as deduces the game metadata from the Obsidian notes database.
 
 import sys
 from pathlib import Path
+from datetime import datetime
 
 from utils.scan_files import (
     get_footage_folders,
     get_game_metadata,
+    parse_full_folder_name_data,
     sort_footage_folder,
     get_file_extensions
     )
+from utils.parse_obsidian_notes import create_obsidian_note
 from utils.validate_files import (
     validate_footage_path,
     validate_obsidian_path,
@@ -52,6 +55,7 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
 
     if args.calculate_test_file_hash_baseline:
         generate_test_file_validation_baseline()
+        print("Recalculated the test data zip archive's sha256 validation hashes.")
         return 0
 
     if args.unpack_tests:
@@ -88,10 +92,6 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
         initialize_obsidian = initialize_obsidian
     )
 
-    if initialize_obsidian:
-        print("WIP not implemented yet")
-        return 0
-
     settings.OUTPUT_PATH = validate_output_path(
         output_path = output_path_candidate,
         use_custom_output_path = settings.OUTPUT_TO_CUSTOM_DIRECTORY,
@@ -122,13 +122,18 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
         dummy=not settings.SQLITE_OUTPUT
     )
 
-    ##################
-    # Initial checks #
-    ##################
+    #####################################
+    # Initial checks and mode selection #
+    #####################################
 
     logger.begin_logging_session()
 
-    logger.log("Generating report from gameplay footage and note directories...\n")
+    if initialize_obsidian:
+        logger.log(f"Initializing Obsidian database at path {settings.OBSIDIAN_DB_PATH}")
+        settings.SCAN_OBSIDIAN_DB = False
+    else:
+        logger.log("Generating report from gameplay footage and note directories...\n")
+
     logger.log(f"Reading gameplay footage from '{settings.GAMEPLAY_FOOTAGE_PATH}'")
     if settings.SCAN_OBSIDIAN_DB:
         logger.log(f"Reading supplementary Obsidian note database from '{settings.OBSIDIAN_DB_PATH}'")
@@ -147,9 +152,27 @@ def gameplay_footage_report_generator(argv: list[str]) -> int:
     # Scan footage folder and cross-reference to Obsidian note database
     ####################################################################
 
+    i = 0
     for footage_folder_name in game_list_raw:
 
+        # just a little something to give the user feedback that things are happening.
+        i+=1
+        print(f"[{str(datetime.now())}]: Scanning {footage_folder_name} ({i}/{len(game_list_raw)})...")
+
         game_footage_path = Path(settings.GAMEPLAY_FOOTAGE_PATH / footage_folder_name)
+
+        if initialize_obsidian:
+            gamename, year, platform, category = parse_full_folder_name_data(game_footage_path,settings)
+            created = create_obsidian_note(
+                folder_name=footage_folder_name,
+                settings=settings,
+                release_year=year,
+                category_fullname=category,
+                platform_fullname=platform
+            )
+            print(f"{gamename} note created: {created}")
+            continue
+
         game_metadata, errors = get_game_metadata(game_footage_path, settings)
         for e in errors:
             logger.log_nonfatal_error(e,footage_folder=footage_folder_name)
