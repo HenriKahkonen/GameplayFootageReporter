@@ -38,6 +38,7 @@ class Game(Base):
     categories: Mapped[list[str]] = mapped_column(JSON)
     genres: Mapped[list[str]] = mapped_column(JSON)
     rating: Mapped[float | None]
+    play_status: Mapped[str | None]
     playtime_mins: Mapped[int | None]
     game_series: Mapped[str | None]
     developers: Mapped[list[str]] = mapped_column(JSON)

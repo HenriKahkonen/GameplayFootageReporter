@@ -305,7 +305,8 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
             game_series : str | None,
             developers : [],
             publishers : [],
-            md_size : float | None # (as kilobytes)
+            md_size : float | None # (as kilobytes),
+            play_status : str | None
             }
         errors : a list with the raised errors, allowing the function 
             to return something and handle the raised exceptions after the fact
@@ -365,7 +366,8 @@ def get_game_metadata(footage_folder_path:Path | str, settings: Settings) -> dic
         "developers" : omd.get(settings.OBSIDIAN_METADATA_MAP["developers"], []),
         "publishers" : omd.get(settings.OBSIDIAN_METADATA_MAP["publishers"], []),
         "md_size" : omd.get("md_file_size", None),
-        "omd_found" : omd_note_found
+        "omd_found" : omd_note_found,
+        "play_status" : omd.get(settings.OBSIDIAN_METADATA_MAP["play_status"], None)
     }
 
     if settings.SCAN_OBSIDIAN_DB and not metadata["omd_found"]:

@@ -144,6 +144,7 @@ OBSIDIAN_METADATA_MAPPING = {
     "game_series" : "Pelisarja",
     "developers" : "Kehittäjä(t)",
     "publishers" : "Julkaisija(t)",
+    "play_status" : "Play_Status"
 }
 
 # What headers to search for in Obsidian files' frontmatter and what are their datatypes?
