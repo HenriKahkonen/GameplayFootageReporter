@@ -1,2 +1,10 @@
 /Data/TestData/*
 /Output/*
+venv
+/Test/Testdata/*
+!Test/Testdata/Testdata.zip
+!Test/Testdata/sha256validation.json
+
+.env
+*__pycache__
+.vscode

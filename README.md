@@ -12,15 +12,30 @@ Script scans its target directory recursively and generates a report as a **.csv
 
 **Script currently identifies clip lengths and such only from .mp4 files**. File size total still cumulates from any files within a subfolder.
 
+## Requirements
+
+- ffmpeg installed on the machine running the script
+
+## Defining settings
+
+- Either through settings.py and .env or with arguments to the script
+
 ## How to use
 
-Script requires Python to run (duh). Also needed dependency is opencv-python, which can be installed with command 
+Script requires Python to run (duh). Also needed dependency is opencv-python. 
 
-> pip install opencv-python
+Those can be installed inside a virtual environment which keeps the machine outside of this program unaffected. This can be achieved with commands 
+
+```
+# linux with fish console
+python -m venv venv
+source venv/bin/activate.fish
+pip install -r requirements.txt
+```
 
 Edit the Gamefootagelister.py file to specify the path to your gameplay footage directory at row 6. If desired, you can test the script with a smaller dataset by placing files in the TestData subdirectory and setting the "UseTestFolder" value to True.
 
-For best results, in your gameplay footage directory, include the game's release date in brackets in the game's folder name, for example:
+For best results, in your gameplay footage directory, include the game's release year in brackets in the game's folder name, for example:
 
 > /Gamefootage/Cyberpunk 2077 (2020)/footage...  
 > /Gamefootage/Witcher 3 (2015)/footage...  
