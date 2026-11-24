@@ -29,7 +29,7 @@ def _probe_duration_secs(path: Path) -> int:
     duration = json.loads(result.stdout).get("format", {}).get("duration")
 
     if duration is None:
-        raise ValueError("ffprobe returned no duration (file may not be a valid video)")
+        raise ValueError(f"File at {path}: ffprobe returned no duration (file may not be a valid video)")
     return int(float(duration))
 
 BYTES_PER_MB = 1024 * 1024
