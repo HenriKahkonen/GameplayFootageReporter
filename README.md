@@ -4,7 +4,9 @@ A tool for video editors and video game content creators.
 
 ## What it does and how it works
 
-This console app is useful if you record a lot of video game gameplay footage and, optionally, write notes about the games you play. The tool can be used to scan a directory of gameplay footage in different video formats and cross-reference a matching Obsidian markdown file database to create a data report of the games played and the amount of their footage. This data report can then be used to identify how much footage there exists per game in minutes and in megabytes as well as identify trends in e.g. what genres the user has played and in what gaming platforms. I personally use this tool to help strip down excessive amounts of unnecessary footage as well as identify which games are recorded at an unnecessarily large bitrate (an NES game doesn't need as high bitrate video as a modern AAA game). The obsidian markdown files' scanning also allows for some data analysis on e.g. games review scores, playtimes, platforms and genres.
+This console app is useful if you record a lot of video game gameplay footage and, optionally, write notes about the games you play. The tool can be used to scan a directory of gameplay footage in different video formats and cross-reference a matching Obsidian markdown file database to create a data report of the games played and the amount of their footage.
+
+This data report can then be used to identify how much footage there exists per game in minutes and in megabytes as well as identify trends in e.g. what genres the user has played and in what gaming platforms. I personally use this tool to help strip down excessive amounts of unnecessary footage as well as identify which games are recorded at an unnecessarily large bitrate (an NES game doesn't need as high bitrate video as a modern AAA game). The obsidian markdown files' scanning also allows for some data analysis on e.g. games review scores, playtimes, platforms and genres.
 
 Some of the data (game platform, release year, game name and length and size of video clips) can be deduced from the video footage files themselves, and supplementary metadata can be extracted from the Obsidian database.
 
@@ -20,7 +22,7 @@ The app can be used if you have a collection of footage folders in a footage dir
 
 Each game's footage directory names can follow a naming convention where the directory name contains a prefix acting as a shorthand for the gaming platform or category of the game as well as a four-digit release year inside brackets at the directory name's end.
 
-The behaviour to either parse the release platforms or release years as well as the platform shorthand-full name mappings can be edited in the file **settings.py**.
+The behaviour to either parse or ignore the release platforms or release years as well as the platform shorthand-full name mappings can be edited in the file **settings.py**.
 
 To cross-reference an obsidian markdown file, the obsidian files need to be named to match the directory names of their respective game footage directories:
 
