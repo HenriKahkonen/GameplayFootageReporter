@@ -33,6 +33,7 @@ To cross-reference an obsidian markdown file, the obsidian files need to be name
 >> Web - Cookie Clicker (2013).md
 >> Wingspan (2020).md
 ```
+If you don't yet have Obsidian notes to match the footage folders, they can be auto-created with this tool. See "Initializing the Obsidian markdown database" in this readme.
 
 The app, when run, then attemps to match a .md file for every footage directory it finds and to read from the matching .md file the game's:
 
@@ -49,16 +50,17 @@ The app, when run, then attemps to match a .md file for every footage directory 
 By parsing the markdown files frontmatter, separated from the rest of the markdown text by the long line symbols "---" at the note's beginning. The markdown files should thus be formatted to use Obsidian's frontmatter formatting like below:
 
 ```
-# (PS2 - Mega Man X (2004).md
+# PS2 - Mega Man X8 (2004).md
 
 ---
 year: 2004
 Genret:
   - "[[Tasoloikkapelit]]"
-  - "[[Shooter platformer -pelit|Shooter platformer -pelit]]"
+  - "[[Shooter platformer -pelit]]"
 tags:
   - Peli
-Alusta(t): "[[PS2]]"
+Alusta(t):
+  - "[[PS2]]"
 Kategoria(t):
 Playtime_hrs: "5"
 Playtime_mins: "45"
@@ -80,7 +82,10 @@ Paths to the footage master directory and the optional Obsidian markdown databas
 
 ### Prerequisities
 
-The app launches subprocesses to probe the video files' metadata and this process uses **ffmpeg**. Before using the application make sure ffmpeg is installed in your system and is properly set in your PATH environment variables. This is also a python app, so make sure **python3.14 or higher** is installed on the machine. The app isn't very complex and it might run with older versions as well but this is not tested.
+- ffmpeg
+- python, 3.14 or higher preferably
+
+The app launches subprocesses to probe the video files' metadata and this process uses ffmpeg. Before using the application make sure ffmpeg is installed in your system and is properly set in your PATH environment variables. This is also a python app, so make sure python3.14 or higher is installed on the machine. The app isn't very complex and it might run with older versions as well but this is not tested.
 
 ### Installing the app
 
@@ -101,7 +106,7 @@ pip install -r requirements.txt
 ```
 ### Updating the paths and settings
 
-Like described above, the user's footage directory and markdown file directory must be set in the **.env** file. Copypaste the **.env.example** and edit it to contain:
+Like described above, the user's footage directory and markdown file directory must be set in the **.env** file. Copypaste the **.env.example** and edit it to contain your paths:
 
 ```
 GAMEPLAY_FOOTAGE_PATH=~/Videos/Gameplay-footage
